@@ -1,0 +1,25 @@
+[project]
+name = "fedit"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mathis Börner", email = "mathis.boerner@googlemail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+fedit = "fedit:main"
+
+[tool.maturin]
+module-name = "fedit._core"
+python-packages = ["fedit"]
+python-source = "src"
+
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.rs" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
