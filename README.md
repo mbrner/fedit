@@ -1,36 +1,9 @@
-- YAML/TOML Structured Mode:
-- Use -s/--structured to treat the search string as a path and replace with a value for YAML/TOML files as well. Example: `fedit -s config.yaml "server.port" "8080"`.
-- This is experimental and uses line-based manipulation to preserve formatting where possible.
-- See US-012 for details and limitations.
-- Use -s/--structured to treat the search string as a path and replace with a value for YAML/TOML files as well. Example: `fedit -s config.yaml "server.port" "8080"`.
-- This is experimental and uses line-based manipulation to preserve formatting where possible.
-- See US-012 for details and limitations.
-- Run the CLI with: `fedit <path> <search-str> <replace-str> [--encoding <ENC>] [--multiple]`.
- - Library usage example:
-   - In Rust: use fedit::api::{EditResult, ReplaceOptions, EditError, replace_in_content};
-     let content = String::from("hello world");
-     let opts = ReplaceOptions { multiple: true };
-     let res = replace_in_content(&content, "hello", "hi", &opts).unwrap();
-     assert_eq!(res.content, "hi world");
-- Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
-- Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
-- Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
+FEdit - Structured text editing
 
-- Whitespace-insensitive search example:
-  - fedit path.txt "hello  world" -w - replace-with "hi there"  (matches regardless of spaces)
-  
-- Examples
-- Replace a single exact match:
-  - fedit example.txt "old" "new"
-- Replace all matches (requires --multiple):
-  - fedit example.txt "dup" "dup2" --multiple
+This repository hosts FEdit, a tool for structured search and replace across various file formats.
 
-- Notes
-- Exit code 0 on success, non-zero on error.
-- When zero matches exist: prints "No matches found for: <search-str>" and exits 1.
-- When multiple matches exist: prints "Multiple matches found (<count>); use --multiple to replace all" and exits 1.
-- Original file is unchanged on error.
-- Safety guarantees
-- - Atomic writes ensure partial writes don't corrupt files: writing to a temporary file, flushing to disk, and atomically replacing the target file.
-- - If a write fails, the original file remains unchanged.
-- - Temporary files are cleaned up on both success and failure.
+Usage notes:
+- Install via pip in the future (wheels supported).
+- See pyproject.toml for packaging configuration.
+
+For more details, see AGENTS.md and the tests in this repo.

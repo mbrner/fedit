@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:17:24.343Z",
-  "currentIteration": 11,
+  "updatedAt": "2026-02-10T14:21:28.515Z",
+  "currentIteration": 13,
   "maxIterations": 20,
-  "tasksCompleted": 11,
+  "tasksCompleted": 12,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -83,8 +83,8 @@
       {
         "id": "US-012",
         "title": "Structured Key Mode - YAML and TOML",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-013",
@@ -228,10 +228,32 @@
       "durationMs": 188903,
       "startedAt": "2026-02-10T14:11:33.810Z",
       "endedAt": "2026-02-10T14:14:42.713Z"
+    },
+    {
+      "iteration": 12,
+      "status": "completed",
+      "taskId": "US-012",
+      "taskTitle": "Structured Key Mode - YAML and TOML",
+      "taskCompleted": true,
+      "durationMs": 160533,
+      "startedAt": "2026-02-10T14:14:43.808Z",
+      "endedAt": "2026-02-10T14:17:24.341Z"
+    },
+    {
+      "iteration": 13,
+      "status": "failed",
+      "taskId": "US-013",
+      "taskTitle": "Python Bindings via Maturin",
+      "taskCompleted": false,
+      "durationMs": 73612,
+      "startedAt": "2026-02-10T14:17:25.431Z",
+      "endedAt": "2026-02-10T14:18:39.043Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-013"
+  ],
   "subagentPanelVisible": false
 }

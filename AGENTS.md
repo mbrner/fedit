@@ -10,6 +10,7 @@ Note: YAML/TOML structured mode is in scope for US-012 and is implemented as a s
 - Changes touched
   - bin/fedit_structured_json.py: new structured JSON path replacer
   - AGENTS.md: update note for US-011 feature
+  - US-014: Python Wheel Packaging: add wheel packaging notes to future work
 - How to use (example)
   - fedit -s file.json "config.port" "8080"
 - Next steps
