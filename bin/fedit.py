@@ -100,11 +100,14 @@ def main() -> int:
         print(f"Error decoding file: {e}", file=sys.stderr)
         return 2
 
-    # Locate exact non-overlapping matches
+    # Normalize line endings to LF for reliable indexing
+    text_norm = text.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Locate exact non-overlapping matches on normalized text
     indices = []
     start = 0
     while True:
-        idx = text.find(search, start)
+        idx = text_norm.find(search, start)
         if idx == -1:
             break
         indices.append(idx)
@@ -122,18 +125,17 @@ def main() -> int:
         )
         return 1
 
-    # Prepare replacement string:
-    # If a dominant line ending exists, convert escaped "\n" sequences to that ending.
+    # Prepare replacement string for LF-based processing
     rep = replacement
-    if line_ending is not None:
-        rep = rep.replace("\\n", line_ending)
+    # Interpret escaped newline as LF for processing; actual conversion to target ending occurs later
+    rep_for_norm = rep.replace("\\n", "\n")
 
-    # Perform replacement
+    # Perform replacement on the LF-normalized text
     if count == 1:
         idx = indices[0]
-        new_text = text[:idx] + rep + text[idx + len(search) :]
+        new_text_norm = text_norm[:idx] + rep_for_norm + text_norm[idx + len(search) :]
     else:
-        new_text = text.replace(search, rep)
+        new_text_norm = text_norm.replace(search, rep_for_norm)
 
     # Atomic write via temp file
     dirn = os.path.dirname(path) or "."
@@ -142,9 +144,17 @@ def main() -> int:
         fd, tmp_path = tempfile.mkstemp(
             prefix=".fedit.tmp.", suffix="." + os.path.basename(path), dir=dirn
         )
+        # Normalize to the target line ending and write atomically
+        if line_ending is not None:
+            if line_ending == "lf":
+                final_text = new_text_norm
+            else:
+                final_text = new_text_norm.replace("\n", "\r\n")
+        else:
+            final_text = new_text_norm
         # Write with explicit encoding and no newline translation
-        with open(fd, "w", encoding=enc, newline="") as f:
-            f.write(new_text)
+        with os.fdopen(fd, "w", encoding=enc, newline="") as f:
+            f.write(final_text)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, path)

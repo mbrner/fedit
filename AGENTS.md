@@ -15,8 +15,17 @@ US-001: Single Exact-Match Replacement
   - Ensure original file remains unchanged if error occurs.
 - Notes:
   - Update README.md with usage example and AGENTS.md reflecting this feature.
-US-005: Line Ending Preservation
+- US-005: Line Ending Preservation
  
+- Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
+- Behavior:
+  - Detect dominant line ending style from input file.
+  - Output uses the detected style for all line endings.
+  - Replace strings containing "\\n" are translated to the detected ending in the output.
+  - If there are no line endings, write as-is without adding endings.
+- Notes:
+  - Atomic writes throughout the process.
+  - Update README.md to reflect this feature.
 - Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
 - Behavior:
   - Detect dominant line ending style from input file.
@@ -36,6 +45,7 @@ US-005: Line Ending Preservation
   - Atomic writes throughout the process.
   - Update README.md to reflect this feature.
 
+ 
 US-002: Multiple Match Replacement Mode
 
 - Objective: Provide an option to replace all occurrences of a search string when -m/--multiple is provided.
