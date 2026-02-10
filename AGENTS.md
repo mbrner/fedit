@@ -44,7 +44,7 @@ fedit/
 │   │                       # - generate_diff() (LCS-based)
 │   │                       # - BOM handling, line ending detection
 │   │
-│   ├── lib.rs              # PyO3 Python bindings (550+ lines)
+│   ├── lib.rs              # PyO3 Python bindings (630+ lines)
 │   │                       # - edit(), edit_fuzzy()
 │   │                       # - edit_structured_file(), edit_structured_string()
 │   │                       # - All Py* wrapper classes
@@ -61,6 +61,12 @@ fedit/
 │       │                   # - edit_structured(path, key, value)
 │       ├── _core.pyi       # Type stubs for Rust bindings
 │       └── py.typed        # PEP 561 marker
+│
+├── tests/
+│   └── test_fedit.py       # Python tests (29 tests)
+│                           # - TestEdit: text replacement, fuzzy matching
+│                           # - TestEditStructured: JSON/YAML/TOML editing
+│                           # - TestCLI: command-line interface
 │
 ├── Cargo.toml              # Rust dependencies
 ├── pyproject.toml          # Python packaging (maturin)
@@ -115,9 +121,10 @@ fedit config.yaml -s database.host localhost
 ## Building & Testing
 
 ```bash
-cargo build --release    # Build Rust
-cargo test               # Run 40 tests
-maturin develop          # Install Python package
+cargo build --release                           # Build Rust
+cargo test                                      # Run 40 Rust tests
+maturin develop                                 # Install Python package
+uv run --with pytest pytest tests/ -v          # Run 29 Python tests
 ```
 
 ## Exit Codes

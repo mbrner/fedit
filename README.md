@@ -75,10 +75,11 @@ fedit settings.toml -s version '"1.0.0"' -f toml
 ```bash
 # Prerequisites: Rust 1.82+, Python 3.9-3.12, maturin
 
-cargo build --release      # Rust only
-maturin develop            # Python package (dev mode)
-maturin build --release    # Build wheel
-cargo test                 # Run tests
+cargo build --release                           # Rust only
+maturin develop                                 # Python package (dev mode)
+maturin build --release                         # Build wheel
+cargo test                                      # Run Rust tests (40 tests)
+uv run --with pytest pytest tests/ -v          # Run Python tests (29 tests)
 ```
 
 ## Project Structure
@@ -92,6 +93,8 @@ fedit/
 │   └── fedit/            # Python package
 │       ├── __init__.py   # Python API
 │       └── _core.pyi     # Type stubs
+├── tests/
+│   └── test_fedit.py     # Python tests
 ├── Cargo.toml
 └── pyproject.toml
 ```
