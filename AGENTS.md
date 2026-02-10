@@ -1,6 +1,9 @@
 # AGENTS.md
 
 - US-011: Structured Key Mode - JSON
+- US-015: CLI Manpage Generation
+- US-012: Structured Key Mode - YAML/TOML
+- US-011: Structured Key Mode - YAML/TOML (not in scope for this patch)
 - US-012: Structured Key Mode - YAML/TOML
 - US-011: Structured Key Mode - YAML/TOML (not in scope for this patch)
 

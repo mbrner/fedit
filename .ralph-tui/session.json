@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:21:28.515Z",
-  "currentIteration": 13,
+  "updatedAt": "2026-02-10T14:25:02.936Z",
+  "currentIteration": 14,
   "maxIterations": 20,
-  "tasksCompleted": 12,
+  "tasksCompleted": 13,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -95,8 +95,8 @@
       {
         "id": "US-014",
         "title": "Python Wheel Packaging",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-015",
@@ -248,6 +248,16 @@
       "durationMs": 73612,
       "startedAt": "2026-02-10T14:17:25.431Z",
       "endedAt": "2026-02-10T14:18:39.043Z"
+    },
+    {
+      "iteration": 14,
+      "status": "completed",
+      "taskId": "US-014",
+      "taskTitle": "Python Wheel Packaging",
+      "taskCompleted": true,
+      "durationMs": 168398,
+      "startedAt": "2026-02-10T14:18:40.115Z",
+      "endedAt": "2026-02-10T14:21:28.513Z"
     }
   ],
   "skippedTaskIds": [],
