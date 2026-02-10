@@ -1,99 +1,14 @@
-US-001: Single Exact-Match Replacement
+# AGENTS.md
 
-- Objective: Add a CLI mode to replace exactly one matching string in a file when exactly one match exists.
-- Behavior:
-  - Accepts positional arguments: fedit <target> <search-str> <replace-str>
-  - If zero matches: exit code 1 and print "No matches found for: [search-str]" to stderr.
-  - If one match: perform replacement and exit 0.
-  - If more than one match: exit code 1 with message "Multiple matches found ([count]); use --multiple to replace all" unless --multiple is provided, in which case replace all and exit 0.
-  - Atomic writes when updating the file to avoid corruption on failure.
-- Error semantics:
-  - Non-zero exit codes on error paths; 0 on success.
-- File encodings:
-  - Support common encodings via --encoding; defaults to utf-8.
-- User experience:
-  - Ensure original file remains unchanged if error occurs.
-- Notes:
-  - Update README.md with usage example and AGENTS.md reflecting this feature.
-- US-005: Line Ending Preservation
- 
-- US-010: Whitespace-Insensitive Search
-  
-  - Objective: Allow matching search strings regardless of whitespace differences, with optional -w/--ignore-whitespace flag (inactive in structured mode).
-  - Behavior:
-    - CLI accepts -w/--ignore-whitespace to enable whitespace-insensitive matching for non-structured mode.
-    - When enabled, sequences of whitespace in the search match any whitespace sequence in the file.
-    - If -s/--structured is active, whitespace-insensitive matching is ignored (key paths are exact).
-    - Original whitespace in the file is preserved after replacement.
-    - Position mapping tracked via simple offsets; used for replacement correctness.
-  - Notes:
-    - Update README.md with whitespace-insensitive usage examples.
- 
-- Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
-- Behavior:
-  - Detect dominant line ending style from input file.
-  - Output uses the detected style for all line endings.
-  - Replace strings containing "\\n" are translated to the detected ending in the output.
-  - If there are no line endings, write as-is without adding endings.
-- Notes:
-  - Atomic writes throughout the process.
-  - Update README.md to reflect this feature.
-- Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
-- Behavior:
-  - Detect dominant line ending style from input file.
-  - Output uses the detected style for all line endings.
-  - Replace strings containing "\\n" are translated to the detected ending in the output.
-  - If there are no line endings, write as-is without adding endings.
-- Notes:
-  - Atomic writes throughout the process.
-  - Update README.md to reflect this feature.
-- Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
-- Behavior:
-  - Detect dominant line ending style from input file.
-  - Output uses the detected style for all line endings.
-  - Replace strings containing "\n" are translated to the detected ending in the output.
-  - If there are no line endings, write as-is without adding endings.
-- Notes:
-  - Atomic writes throughout the process.
-  - Update README.md to reflect this feature.
+- US-011: Structured Key Mode - JSON
+- US-011: Structured Key Mode - YAML/TOML (not in scope for this patch)
 
- 
-US-002: Multiple Match Replacement Mode
+This patch introduces a structured key path mode for JSON files. When -s/--structured is supplied, the search string is treated as a JSON key path (supporting nested keys and array indices) and the replace string becomes the new value for that path. The feature preserves JSON formatting by applying changes via a parsed JSON tree and then writing back with similar indentation. It performs strict path resolution and returns errors for invalid paths or ambiguous paths where the path matches multiple locations.
 
-- Objective: Provide an option to replace all occurrences of a search string when -m/--multiple is provided.
-- Behavior:
-  - CLI accepts -m or --multiple to enable multiple replacements
-- When -m is provided, all occurrences are replaced
-- Output: display the count of replacements made
-- When -m is provided and zero matches exist, print an error message
-- Notes:
-  - Atomic writes are used to update the file to avoid corruption on failure.
-- Update README.md with usage example and AGENTS.md reflecting this feature.
-
-- US-008: Rust Library API - Core Function (library mode)
-  - Public function replace_in_content(content, search, replace, options) -> Result<EditResult, EditError>
-  - Exposes EditResult, ReplaceOptions, EditError in crate::api
-
-US-003: Atomic File Write
-
-- Objective: Ensure file writes are atomic so power failures or crashes don't leave files in a corrupted state.
-- Behavior:
-  - Replacement writes to a temporary file first
-  - Temporary file is flushed to disk before replacing the original
-  - Original file is atomically replaced using rename operation
-  - If the write fails, the original file remains unchanged
-  - Temporary files are cleaned up on both success and failure
-- Notes:
-  - Atomic writes are used to protect against partial writes and corruption on failure
-- Update README.md with usage example and AGENTS.md reflecting this feature.
-
-US-004: Encoding Support
-
-- Objective: Allow specifying file encoding via --encoding/-e so that files not in UTF-8 can be edited safely.
-- Behavior:
-  - CLI accepts -e or --encoding to select the input/output encoding (default: utf-8).
-  - Reads the input file using the specified encoding and writes the output using the same encoding.
-  - If decoding fails, prints a clear error message and exits with a non-zero code.
-  - Supported encodings include UTF-8, UTF-16, ISO-8859-1 (and commonly used variations such as Windows-1252).
-- Notes:
-  - Update README.md with encoding usage examples and reflect this feature in AGENTS.md.
+- Changes touched
+  - bin/fedit_structured_json.py: new structured JSON path replacer
+  - AGENTS.md: update note for US-011 feature
+- How to use (example)
+  - fedit -s file.json "config.port" "8080"
+- Next steps
+  - Expand YAML/T TOML structured support in future PRs

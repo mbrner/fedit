@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:11:32.723Z",
-  "currentIteration": 9,
+  "updatedAt": "2026-02-10T14:14:42.715Z",
+  "currentIteration": 10,
   "maxIterations": 20,
-  "tasksCompleted": 9,
+  "tasksCompleted": 10,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -71,8 +71,8 @@
       {
         "id": "US-010",
         "title": "Whitespace-Insensitive Search",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-011",
@@ -208,6 +208,16 @@
       "durationMs": 151776,
       "startedAt": "2026-02-10T14:05:29.769Z",
       "endedAt": "2026-02-10T14:08:01.545Z"
+    },
+    {
+      "iteration": 10,
+      "status": "completed",
+      "taskId": "US-010",
+      "taskTitle": "Whitespace-Insensitive Search",
+      "taskCompleted": true,
+      "durationMs": 210076,
+      "startedAt": "2026-02-10T14:08:02.644Z",
+      "endedAt": "2026-02-10T14:11:32.720Z"
     }
   ],
   "skippedTaskIds": [],
