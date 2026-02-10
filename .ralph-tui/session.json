@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:25:02.936Z",
-  "currentIteration": 14,
+  "updatedAt": "2026-02-10T14:25:04.038Z",
+  "currentIteration": 15,
   "maxIterations": 20,
-  "tasksCompleted": 13,
+  "tasksCompleted": 14,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -101,8 +101,8 @@
       {
         "id": "US-015",
         "title": "CLI Manpage Generation",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-016",
@@ -258,12 +258,23 @@
       "durationMs": 168398,
       "startedAt": "2026-02-10T14:18:40.115Z",
       "endedAt": "2026-02-10T14:21:28.513Z"
+    },
+    {
+      "iteration": 15,
+      "status": "completed",
+      "taskId": "US-015",
+      "taskTitle": "CLI Manpage Generation",
+      "taskCompleted": true,
+      "durationMs": 213327,
+      "startedAt": "2026-02-10T14:21:29.606Z",
+      "endedAt": "2026-02-10T14:25:02.933Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
   "activeTaskIds": [
-    "US-013"
+    "US-013",
+    "US-016"
   ],
   "subagentPanelVisible": false
 }
