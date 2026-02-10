@@ -38,9 +38,10 @@
 ```
 fedit/
 ├── src/
-│   ├── api.rs              # Core replacement engine (1000+ lines)
+│   ├── api.rs              # Core replacement engine (1300+ lines)
 │   │                       # - replace_in_content()
 │   │                       # - fuzzy_find_text(), normalize_for_fuzzy_match()
+│   │                       # - edit_distance(), find_closest_key()
 │   │                       # - generate_diff() (LCS-based)
 │   │                       # - BOM handling, line ending detection
 │   │
@@ -49,11 +50,12 @@ fedit/
 │   │                       # - edit_structured_file(), edit_structured_string()
 │   │                       # - All Py* wrapper classes
 │   │
-│   ├── structured.rs       # Structured file editing (800+ lines)
+│   ├── structured.rs       # Structured file editing (1000+ lines)
 │   │                       # - JSON/JSONC/JSON5 via serde_json/json5
 │   │                       # - TOML via toml_edit (preserves formatting)
 │   │                       # - YAML via serde_yaml
 │   │                       # - Key path parsing: "foo.bar[0].baz"
+│   │                       # - "Did you mean" suggestions on key-not-found
 │   │
 │   └── fedit/              # Python package
 │       ├── __init__.py     # Simplified Python API
@@ -77,6 +79,8 @@ fedit/
 
 ### Text Editing (`api.rs`)
 - **Fuzzy matching**: Normalizes smart quotes (`""''` → `"'`), Unicode dashes, special spaces
+- **Edit distance**: Levenshtein distance (DP, O(n*m) time, O(min(n,m)) space) for key suggestions
+- **Closest key matching**: `find_closest_key()` with threshold `max(2, key_len/3)`
 - **Atomic writes**: temp file + rename pattern
 - **BOM handling**: Strips/preserves UTF-8 BOM
 - **Line endings**: Auto-detects LF/CRLF, preserves on write
@@ -89,6 +93,7 @@ fedit/
 - **TOML**: Via `toml_edit` (preserves formatting and comments)
 - **YAML**: Via `serde_yaml`
 - **Key paths**: `"server.port"`, `"users[0].name"`, `"config.items[2].value"`
+- **"Did you mean" suggestions**: On key-not-found errors, suggests the closest matching key at the level where resolution failed (using Levenshtein edit distance)
 
 ## Python API
 
@@ -122,7 +127,7 @@ fedit config.yaml -s database.host localhost
 
 ```bash
 cargo build --release                           # Build Rust
-cargo test                                      # Run 40 Rust tests
+cargo test                                      # Run 62 Rust tests
 maturin develop                                 # Install Python package
 uv run --with pytest pytest tests/ -v          # Run 29 Python tests
 ```
