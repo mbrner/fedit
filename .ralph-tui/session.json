@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:14:42.715Z",
-  "currentIteration": 10,
+  "updatedAt": "2026-02-10T14:14:43.816Z",
+  "currentIteration": 11,
   "maxIterations": 20,
-  "tasksCompleted": 10,
+  "tasksCompleted": 11,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -77,8 +77,8 @@
       {
         "id": "US-011",
         "title": "Structured Key Mode - JSON",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-012",
@@ -218,10 +218,22 @@
       "durationMs": 210076,
       "startedAt": "2026-02-10T14:08:02.644Z",
       "endedAt": "2026-02-10T14:11:32.720Z"
+    },
+    {
+      "iteration": 11,
+      "status": "completed",
+      "taskId": "US-011",
+      "taskTitle": "Structured Key Mode - JSON",
+      "taskCompleted": true,
+      "durationMs": 188903,
+      "startedAt": "2026-02-10T14:11:33.810Z",
+      "endedAt": "2026-02-10T14:14:42.713Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-012"
+  ],
   "subagentPanelVisible": false
 }

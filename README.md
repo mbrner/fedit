@@ -1,3 +1,10 @@
+- YAML/TOML Structured Mode:
+- Use -s/--structured to treat the search string as a path and replace with a value for YAML/TOML files as well. Example: `fedit -s config.yaml "server.port" "8080"`.
+- This is experimental and uses line-based manipulation to preserve formatting where possible.
+- See US-012 for details and limitations.
+- Use -s/--structured to treat the search string as a path and replace with a value for YAML/TOML files as well. Example: `fedit -s config.yaml "server.port" "8080"`.
+- This is experimental and uses line-based manipulation to preserve formatting where possible.
+- See US-012 for details and limitations.
 - Run the CLI with: `fedit <path> <search-str> <replace-str> [--encoding <ENC>] [--multiple]`.
  - Library usage example:
    - In Rust: use fedit::api::{EditResult, ReplaceOptions, EditError, replace_in_content};
