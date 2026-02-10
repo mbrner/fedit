@@ -40,9 +40,22 @@ def _detect_target_ending(variant: Optional[str]) -> Optional[str]:
     return None
 
 
+class FEditHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, prog):
+        super().__init__(prog, width=80)
+
+
 def main() -> int:
+    epilog = (
+        "Examples:\n"
+        "  - Replace a single exact match: fedit <path> <search> <replace>\n"
+        "  - Replace all matches: fedit <path> <search> <replace> --multiple\n"
+        "  - Use a specific encoding: fedit <path> <search> <replace> -e utf-16\n"
+    )
     parser = argparse.ArgumentParser(
-        description="Single exact-match replacement in a file with encoding and line ending preservation"
+        description="FEdit: Single exact-match replacement with encoding and line ending preservation",
+        epilog=epilog,
+        formatter_class=FEditHelpFormatter,
     )
     # Positional arguments for the core task
     parser.add_argument("path", help="Path to the target file")

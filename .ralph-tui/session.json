@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T13:57:58.079Z",
-  "currentIteration": 5,
+  "updatedAt": "2026-02-10T14:02:06.358Z",
+  "currentIteration": 6,
   "maxIterations": 20,
-  "tasksCompleted": 5,
+  "tasksCompleted": 6,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -47,8 +47,8 @@
       {
         "id": "US-006",
         "title": "Dry Run Mode",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-007",
@@ -168,6 +168,16 @@
       "durationMs": 214912,
       "startedAt": "2026-02-10T13:49:39.722Z",
       "endedAt": "2026-02-10T13:53:14.634Z"
+    },
+    {
+      "iteration": 6,
+      "status": "completed",
+      "taskId": "US-006",
+      "taskTitle": "Dry Run Mode",
+      "taskCompleted": true,
+      "durationMs": 282346,
+      "startedAt": "2026-02-10T13:53:15.731Z",
+      "endedAt": "2026-02-10T13:57:58.077Z"
     }
   ],
   "skippedTaskIds": [],
