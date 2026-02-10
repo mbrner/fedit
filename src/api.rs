@@ -285,6 +285,84 @@ fn truncate_for_display(s: &str, max_len: usize) -> String {
 
 impl std::error::Error for EditError {}
 
+/// Compute the Levenshtein edit distance between two strings using dynamic programming.
+/// This is an O(n*m) time and O(min(n,m)) space algorithm.
+pub fn edit_distance(a: &str, b: &str) -> usize {
+    let a_chars: Vec<char> = a.chars().collect();
+    let b_chars: Vec<char> = b.chars().collect();
+    let a_len = a_chars.len();
+    let b_len = b_chars.len();
+
+    // Optimize: use the shorter string for the column dimension
+    if a_len > b_len {
+        return edit_distance(b, a);
+    }
+
+    // a_len <= b_len here
+    let mut prev = vec![0usize; a_len + 1];
+    let mut curr = vec![0usize; a_len + 1];
+
+    // Base case: distance from empty string
+    for i in 0..=a_len {
+        prev[i] = i;
+    }
+
+    for j in 1..=b_len {
+        curr[0] = j;
+        for i in 1..=a_len {
+            let cost = if a_chars[i - 1] == b_chars[j - 1] {
+                0
+            } else {
+                1
+            };
+            curr[i] = (prev[i] + 1) // deletion
+                .min(curr[i - 1] + 1) // insertion
+                .min(prev[i - 1] + cost); // substitution
+        }
+        std::mem::swap(&mut prev, &mut curr);
+    }
+
+    prev[a_len]
+}
+
+/// Find the closest matching key from a list of available keys using edit distance.
+/// Returns the closest key if its edit distance is within a reasonable threshold.
+/// The threshold is: distance <= max(2, key_len / 3), ensuring we don't suggest
+/// wildly different keys.
+pub fn find_closest_key<'a>(target: &str, available_keys: &[&'a str]) -> Option<&'a str> {
+    if available_keys.is_empty() {
+        return None;
+    }
+
+    let mut best_key = None;
+    let mut best_dist = usize::MAX;
+
+    for &key in available_keys {
+        let dist = edit_distance(target, key);
+        if dist < best_dist {
+            best_dist = dist;
+            best_key = Some(key);
+        }
+    }
+
+    // Threshold: allow at most max(2, target_len/3) edits
+    let threshold = 2.max(target.len() / 3);
+    if best_dist <= threshold && best_dist > 0 {
+        best_key
+    } else {
+        None
+    }
+}
+
+/// Format a "Key not found" error message, optionally with a "did you mean" suggestion.
+pub fn key_not_found_msg(key: &str, available_keys: &[&str]) -> String {
+    let base = format!("Key '{}' not found", key);
+    match find_closest_key(key, available_keys) {
+        Some(suggestion) => format!("{}. Did you mean '{}'?", base, suggestion),
+        None => base,
+    }
+}
+
 /// Detect line ending style from raw bytes using first-occurrence approach.
 /// This is simpler and more predictable than counting all occurrences.
 pub fn detect_line_endings(content: &[u8]) -> Option<LineEnding> {
@@ -1221,6 +1299,108 @@ mod tests {
         assert_eq!(normalize_to_lf("hello\r\nworld"), "hello\nworld");
         assert_eq!(normalize_to_lf("hello\rworld"), "hello\nworld");
         assert_eq!(normalize_to_lf("hello\nworld"), "hello\nworld");
+    }
+
+    // Tests for edit distance and closest key matching
+    #[test]
+    fn test_edit_distance_identical() {
+        assert_eq!(edit_distance("hello", "hello"), 0);
+    }
+
+    #[test]
+    fn test_edit_distance_empty() {
+        assert_eq!(edit_distance("", "hello"), 5);
+        assert_eq!(edit_distance("hello", ""), 5);
+        assert_eq!(edit_distance("", ""), 0);
+    }
+
+    #[test]
+    fn test_edit_distance_single_char() {
+        assert_eq!(edit_distance("a", "b"), 1);
+        assert_eq!(edit_distance("a", "a"), 0);
+    }
+
+    #[test]
+    fn test_edit_distance_insertion() {
+        assert_eq!(edit_distance("name", "names"), 1);
+    }
+
+    #[test]
+    fn test_edit_distance_deletion() {
+        assert_eq!(edit_distance("names", "name"), 1);
+    }
+
+    #[test]
+    fn test_edit_distance_substitution() {
+        assert_eq!(edit_distance("name", "fame"), 1);
+    }
+
+    #[test]
+    fn test_edit_distance_typo() {
+        assert_eq!(edit_distance("naem", "name"), 2); // transposition = 2 ops in Levenshtein
+    }
+
+    #[test]
+    fn test_edit_distance_symmetric() {
+        assert_eq!(edit_distance("abc", "def"), edit_distance("def", "abc"));
+        assert_eq!(
+            edit_distance("kitten", "sitting"),
+            edit_distance("sitting", "kitten")
+        );
+    }
+
+    #[test]
+    fn test_edit_distance_classic() {
+        assert_eq!(edit_distance("kitten", "sitting"), 3);
+    }
+
+    #[test]
+    fn test_find_closest_key_exact_not_returned() {
+        // Exact match (distance 0) should NOT be returned
+        let keys = vec!["name", "value", "count"];
+        assert_eq!(find_closest_key("name", &keys), None);
+    }
+
+    #[test]
+    fn test_find_closest_key_typo() {
+        let keys = vec!["name", "value", "count"];
+        assert_eq!(find_closest_key("nme", &keys), Some("name"));
+        assert_eq!(find_closest_key("valeu", &keys), Some("value"));
+        assert_eq!(find_closest_key("coutn", &keys), Some("count"));
+    }
+
+    #[test]
+    fn test_find_closest_key_no_match() {
+        let keys = vec!["name", "value", "count"];
+        assert_eq!(find_closest_key("zzzzzzz", &keys), None);
+    }
+
+    #[test]
+    fn test_find_closest_key_empty_candidates() {
+        let keys: Vec<&str> = vec![];
+        assert_eq!(find_closest_key("name", &keys), None);
+    }
+
+    #[test]
+    fn test_find_closest_key_single_char_difference() {
+        let keys = vec!["port", "host", "name"];
+        assert_eq!(find_closest_key("potr", &keys), Some("port"));
+    }
+
+    #[test]
+    fn test_key_not_found_msg_with_suggestion() {
+        let keys = vec!["name", "value", "description"];
+        let msg = key_not_found_msg("nme", &keys);
+        assert!(msg.contains("Did you mean 'name'?"));
+        assert!(msg.contains("Key 'nme' not found"));
+    }
+
+    #[test]
+    fn test_key_not_found_msg_without_suggestion() {
+        let keys = vec!["name", "value", "description"];
+        let msg = key_not_found_msg("zzzzzzzzz", &keys);
+        assert!(!msg.contains("Did you mean"));
+        assert!(msg.contains("Key 'zzzzzzzzz' not found"));
     }
 
     #[test]

@@ -13,6 +13,7 @@ FEdit is a Rust/Python tool for safe, atomic file edits. It provides exact-match
 - **Atomic writes** - Changes written via temp file + rename (no partial writes)
 - **Fuzzy matching** - Handles smart quotes, Unicode dashes, trailing whitespace
 - **Structured editing** - Edit JSON/YAML/TOML files by key path
+- **"Did you mean" suggestions** - Typo-friendly key-not-found errors with edit-distance-based suggestions
 - **Encoding support** - UTF-8, UTF-16, ISO-8859-1, Windows-1252
 - **Line ending preservation** - Auto-detects and preserves LF/CRLF
 
@@ -36,6 +37,9 @@ fedit.edit("code.py", "old_name", "new_name", multiple=True)
 fedit.edit_structured("config.json", "server.port", 8080)
 fedit.edit_structured("config.yaml", "database.host", "localhost")
 fedit.edit_structured("Cargo.toml", "package.version", '"2.0.0"')
+
+# Typo in key path? Get a helpful suggestion:
+# ValueError: Key not found: Key 'sever' not found. Did you mean 'server'?
 
 # Preview changes
 result = fedit.edit("file.txt", "old", "new", dry_run=True)
@@ -84,7 +88,7 @@ fedit settings.toml -s version '"1.0.0"' -f toml
 cargo build --release                           # Rust only
 maturin develop                                 # Python package (dev mode)
 maturin build --release                         # Build wheel
-cargo test                                      # Run Rust tests (40 tests)
+cargo test                                      # Run Rust tests (62 tests)
 uv run --with pytest pytest tests/ -v          # Run Python tests (29 tests)
 ```
 

@@ -13,11 +13,11 @@ pub mod structured;
 // Re-export core items for Rust usage
 pub use api::{
     count_fuzzy_occurrences, decode_content, detect_line_endings, detect_line_endings_str,
-    edit_file, edit_file_fuzzy, encode_content, fuzzy_find_text, generate_diff,
-    normalize_for_fuzzy_match, normalize_to_lf, read_file, replace_in_content,
-    restore_line_endings, strip_bom, strip_bom_bytes, write_file_atomic, BomStripped, DiffResult,
-    EditError, EditResult, EditResultWithDiff, Encoding, FuzzyMatchResult, LineEnding,
-    ReplaceOptions, UTF8_BOM, UTF8_BOM_BYTES,
+    edit_distance, edit_file, edit_file_fuzzy, encode_content, find_closest_key, fuzzy_find_text,
+    generate_diff, key_not_found_msg, normalize_for_fuzzy_match, normalize_to_lf, read_file,
+    replace_in_content, restore_line_endings, strip_bom, strip_bom_bytes, write_file_atomic,
+    BomStripped, DiffResult, EditError, EditResult, EditResultWithDiff, Encoding,
+    FuzzyMatchResult, LineEnding, ReplaceOptions, UTF8_BOM, UTF8_BOM_BYTES,
 };
 
 pub use structured::{
