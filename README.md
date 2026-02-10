@@ -1,4 +1,10 @@
 - Run the CLI with: `fedit <path> <search-str> <replace-str> [--encoding <ENC>] [--multiple]`.
+ - Library usage example:
+   - In Rust: use fedit::api::{EditResult, ReplaceOptions, EditError, replace_in_content};
+     let content = String::from("hello world");
+     let opts = ReplaceOptions { multiple: true };
+     let res = replace_in_content(&content, "hello", "hi", &opts).unwrap();
+     assert_eq!(res.content, "hi world");
 - Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
 - Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
 - Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).

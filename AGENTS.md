@@ -58,6 +58,10 @@ US-002: Multiple Match Replacement Mode
   - Atomic writes are used to update the file to avoid corruption on failure.
 - Update README.md with usage example and AGENTS.md reflecting this feature.
 
+- US-008: Rust Library API - Core Function (library mode)
+  - Public function replace_in_content(content, search, replace, options) -> Result<EditResult, EditError>
+  - Exposes EditResult, ReplaceOptions, EditError in crate::api
+
 US-003: Atomic File Write
 
 - Objective: Ensure file writes are atomic so power failures or crashes don't leave files in a corrupted state.

@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:02:06.358Z",
-  "currentIteration": 6,
+  "updatedAt": "2026-02-10T14:05:28.676Z",
+  "currentIteration": 7,
   "maxIterations": 20,
-  "tasksCompleted": 6,
+  "tasksCompleted": 7,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -53,8 +53,8 @@
       {
         "id": "US-007",
         "title": "CLI Help and Usage",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-008",
@@ -178,6 +178,16 @@
       "durationMs": 282346,
       "startedAt": "2026-02-10T13:53:15.731Z",
       "endedAt": "2026-02-10T13:57:58.077Z"
+    },
+    {
+      "iteration": 7,
+      "status": "completed",
+      "taskId": "US-007",
+      "taskTitle": "CLI Help and Usage",
+      "taskCompleted": true,
+      "durationMs": 247180,
+      "startedAt": "2026-02-10T13:57:59.176Z",
+      "endedAt": "2026-02-10T14:02:06.356Z"
     }
   ],
   "skippedTaskIds": [],
