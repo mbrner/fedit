@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""FEdit: Single exact-match replacement with encoding support.
+"""FEdit: Single exact-match replacement with encoding and line ending preservation.
 
 Usage:
   fedit <path> <search> <replace> [--encoding <ENC>] [--multiple]
@@ -9,17 +9,40 @@ Behavior:
 - If there are zero matches, prints an error and exits non-zero.
 - If there are multiple matches, errors unless --multiple is provided, in which
   case all matches are replaced.
+- Line endings are preserved based on the dominant style in the input file (LF or CRLF).
+  Replacements containing the escape sequence "\n" will be translated into the target
+  line ending style.
 """
 
 import argparse
 import os
 import sys
 import tempfile
+from typing import Optional
+
+
+def _detect_line_endings(raw_bytes: bytes) -> Optional[str]:
+    # Determine dominant line ending style based on content.
+    crlf = raw_bytes.count(b"\r\n")
+    lf_only = raw_bytes.count(b"\n") - crlf
+    if crlf == 0 and lf_only == 0:
+        return None  # No line endings detected
+    if crlf >= lf_only:
+        return "crlf"
+    return "lf"
+
+
+def _detect_target_ending(variant: Optional[str]) -> Optional[str]:
+    if variant == "crlf":
+        return "\r\n"
+    if variant == "lf":
+        return "\n"
+    return None
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Single exact-match replacement in a file with encoding support"
+        description="Single exact-match replacement in a file with encoding and line ending preservation"
     )
     # Positional arguments for the core task
     parser.add_argument("path", help="Path to the target file")
@@ -49,13 +72,24 @@ def main() -> int:
     replacement = args.replace
     enc = args.encoding
 
-    # Read input with specified encoding
+    # Read input as bytes to preserve line ending information
     try:
-        with open(path, "r", encoding=enc) as f:
-            content = f.read()
+        with open(path, "rb") as f:
+            raw = f.read()
     except FileNotFoundError:
         print(f"No such file: {path}", file=sys.stderr)
         return 2
+    except Exception as e:
+        print(f"Error reading file: {e}", file=sys.stderr)
+        return 2
+
+    # Detect line endings
+    dom = _detect_line_endings(raw)
+    line_ending = _detect_target_ending(dom)
+
+    # Decode content using the provided encoding
+    try:
+        text = raw.decode(enc)
     except UnicodeDecodeError:
         print(
             f"EncodingError: Could not decode input file '{path}' using encoding '{enc}'",
@@ -63,14 +97,14 @@ def main() -> int:
         )
         return 4
     except Exception as e:
-        print(f"Error reading file: {e}", file=sys.stderr)
+        print(f"Error decoding file: {e}", file=sys.stderr)
         return 2
 
     # Locate exact non-overlapping matches
     indices = []
     start = 0
     while True:
-        idx = content.find(search, start)
+        idx = text.find(search, start)
         if idx == -1:
             break
         indices.append(idx)
@@ -88,12 +122,18 @@ def main() -> int:
         )
         return 1
 
+    # Prepare replacement string:
+    # If a dominant line ending exists, convert escaped "\n" sequences to that ending.
+    rep = replacement
+    if line_ending is not None:
+        rep = rep.replace("\\n", line_ending)
+
     # Perform replacement
     if count == 1:
         idx = indices[0]
-        new_content = content[:idx] + replacement + content[idx + len(search) :]
+        new_text = text[:idx] + rep + text[idx + len(search) :]
     else:
-        new_content = content.replace(search, replacement)
+        new_text = text.replace(search, rep)
 
     # Atomic write via temp file
     dirn = os.path.dirname(path) or "."
@@ -102,8 +142,9 @@ def main() -> int:
         fd, tmp_path = tempfile.mkstemp(
             prefix=".fedit.tmp.", suffix="." + os.path.basename(path), dir=dirn
         )
-        with os.fdopen(fd, "w", encoding=enc) as f:
-            f.write(new_content)
+        # Write with explicit encoding and no newline translation
+        with open(fd, "w", encoding=enc, newline="") as f:
+            f.write(new_text)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, path)
