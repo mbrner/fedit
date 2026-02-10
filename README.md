@@ -1,7 +1,7 @@
 Usage
 - Run the CLI with: `fedit <path> <search-str> <replace-str> [--encoding <ENC>] [--multiple]`
 
-Examples
+- Examples
 - Replace a single exact match:
   - fedit example.txt "old" "new"
 - Replace all matches (requires --multiple):

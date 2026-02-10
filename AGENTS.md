@@ -15,3 +15,15 @@ US-001: Single Exact-Match Replacement
   - Ensure original file remains unchanged if error occurs.
 - Notes:
   - Update README.md with usage example and AGENTS.md reflecting this feature.
+
+US-002: Multiple Match Replacement Mode
+
+- Objective: Provide an option to replace all occurrences of a search string when -m/--multiple is provided.
+- Behavior:
+  - CLI accepts -m or --multiple to enable multiple replacements
+- When -m is provided, all occurrences are replaced
+- Output: display the count of replacements made
+- When -m is provided and zero matches exist, print an error message
+- Notes:
+  - Atomic writes are used to update the file to avoid corruption on failure.
+- Update README.md with usage example and AGENTS.md reflecting this feature.
