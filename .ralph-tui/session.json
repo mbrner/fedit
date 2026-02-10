@@ -3,10 +3,10 @@
   "sessionId": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
   "status": "running",
   "startedAt": "2026-02-10T12:55:19.095Z",
-  "updatedAt": "2026-02-10T12:56:25.824Z",
-  "currentIteration": 0,
+  "updatedAt": "2026-02-10T12:56:26.927Z",
+  "currentIteration": 1,
   "maxIterations": 20,
-  "tasksCompleted": 0,
+  "tasksCompleted": 1,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -17,8 +17,8 @@
       {
         "id": "US-001",
         "title": "Single Exact-Match Replacement",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-002",
@@ -124,9 +124,22 @@
       }
     ]
   },
-  "iterations": [],
+  "iterations": [
+    {
+      "iteration": 1,
+      "status": "completed",
+      "taskId": "US-001",
+      "taskTitle": "Single Exact-Match Replacement",
+      "taskCompleted": true,
+      "durationMs": 63589,
+      "startedAt": "2026-02-10T12:55:22.230Z",
+      "endedAt": "2026-02-10T12:56:25.819Z"
+    }
+  ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-002"
+  ],
   "subagentPanelVisible": false
 }

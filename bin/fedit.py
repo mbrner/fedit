@@ -22,11 +22,20 @@ def main() -> int:
         "--search", required=True, help="Search string to replace (exact match)"
     )
     parser.add_argument("--replace", required=True, help="Replacement string")
+    # Support multiple replacement mode via -M / --mult (require explicit opt-in)
     parser.add_argument(
         "-M",
-        "--replace-all",
+        "--mult",
+        dest="mult",
         action="store_true",
         help="Replace all occurrences when multiple matches exist",
+    )
+    # Backwards-compatible alias for the same flag
+    parser.add_argument(
+        "--replace-all",
+        dest="mult",
+        action="store_true",
+        help="Alias for -M (replace all occurrences)",
     )
 
     args = parser.parse_args()
@@ -61,7 +70,7 @@ def main() -> int:
         print(f"No matches found for: {search}", file=sys.stderr)
         return 1
 
-    if count > 1 and not args.replace_all:
+    if count > 1 and not args.mult:
         print(
             f"Multiple matches found ({count}); use -M to replace all", file=sys.stderr
         )
@@ -77,6 +86,8 @@ def main() -> int:
             new_content = content.replace(search, replacement)
         with open(path, "w", encoding="utf-8") as f:
             f.write(new_content)
+        # Output how many replacements were made
+        print(f"Replaced {count} occurrence{'s' if count != 1 else ''} in {path}")
         return 0
     except Exception as e:
         print(f"Error writing file: {e}", file=sys.stderr)
