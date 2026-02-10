@@ -4,8 +4,8 @@
 //! and comments where possible.
 
 use crate::api::{
-    normalize_to_lf, read_file, restore_line_endings, strip_bom, write_file_atomic, EditError,
-    Encoding, LineEnding,
+    key_not_found_msg, normalize_to_lf, read_file, restore_line_endings, strip_bom,
+    write_file_atomic, EditError, Encoding, LineEnding,
 };
 use std::path::Path;
 
@@ -218,9 +218,15 @@ fn get_json_value(
 
     for segment in segments {
         current = match segment {
-            KeySegment::Key(key) => current
-                .get(key)
-                .ok_or_else(|| EditError::KeyNotFound(format!("Key '{}' not found", key)))?,
+            KeySegment::Key(key) => {
+                let available: Vec<&str> = current
+                    .as_object()
+                    .map(|obj| obj.keys().map(|k| k.as_str()).collect())
+                    .unwrap_or_default();
+                current
+                    .get(key)
+                    .ok_or_else(|| EditError::KeyNotFound(key_not_found_msg(key, &available)))?
+            }
             KeySegment::Index(idx) => current
                 .get(*idx)
                 .ok_or_else(|| EditError::KeyNotFound(format!("Index {} out of bounds", idx)))?,
@@ -244,9 +250,17 @@ fn set_json_value(
     // Navigate to parent
     for segment in &segments[..segments.len() - 1] {
         current = match segment {
-            KeySegment::Key(key) => current
-                .get_mut(key)
-                .ok_or_else(|| EditError::KeyNotFound(format!("Key '{}' not found", key)))?,
+            KeySegment::Key(key) => {
+                let available: Vec<String> = current
+                    .as_object()
+                    .map(|obj| obj.keys().cloned().collect())
+                    .unwrap_or_default();
+                let available_refs: Vec<&str> =
+                    available.iter().map(|s| s.as_str()).collect();
+                current
+                    .get_mut(key)
+                    .ok_or_else(|| EditError::KeyNotFound(key_not_found_msg(key, &available_refs)))?
+            }
             KeySegment::Index(idx) => current
                 .get_mut(*idx)
                 .ok_or_else(|| EditError::KeyNotFound(format!("Index {} out of bounds", idx)))?,
@@ -396,8 +410,9 @@ fn get_toml_value(
         current = match (&current, segment) {
             (TomlRef::Item(item), KeySegment::Key(key)) => {
                 if let Some(table) = item.as_table_like() {
+                    let available: Vec<&str> = table.iter().map(|(k, _)| k).collect();
                     TomlRef::Item(table.get(key).ok_or_else(|| {
-                        EditError::KeyNotFound(format!("Key '{}' not found", key))
+                        EditError::KeyNotFound(key_not_found_msg(key, &available))
                     })?)
                 } else {
                     return Err(EditError::InvalidKeyPath(format!(
@@ -420,8 +435,9 @@ fn get_toml_value(
             }
             (TomlRef::Value(val), KeySegment::Key(key)) => {
                 if let Some(tbl) = val.as_inline_table() {
+                    let available: Vec<&str> = tbl.iter().map(|(k, _)| k).collect();
                     TomlRef::Value(tbl.get(key).ok_or_else(|| {
-                        EditError::KeyNotFound(format!("Key '{}' not found", key))
+                        EditError::KeyNotFound(key_not_found_msg(key, &available))
                     })?)
                 } else {
                     return Err(EditError::InvalidKeyPath(format!(
@@ -481,9 +497,16 @@ fn set_toml_value(
     for segment in &segments[..segments.len() - 1] {
         current = match (current, segment) {
             (TomlRefMut::Item(item), KeySegment::Key(key)) => {
+                // Collect keys before taking mutable ref
+                let available: Vec<String> = item
+                    .as_table_like()
+                    .map(|t| t.iter().map(|(k, _)| k.to_string()).collect())
+                    .unwrap_or_default();
                 if let Some(table) = item.as_table_like_mut() {
+                    let available_refs: Vec<&str> =
+                        available.iter().map(|s| s.as_str()).collect();
                     TomlRefMut::Item(table.get_mut(key).ok_or_else(|| {
-                        EditError::KeyNotFound(format!("Key '{}' not found", key))
+                        EditError::KeyNotFound(key_not_found_msg(key, &available_refs))
                     })?)
                 } else {
                     return Err(EditError::InvalidKeyPath(format!(
@@ -505,9 +528,16 @@ fn set_toml_value(
                 }
             }
             (TomlRefMut::Value(val), KeySegment::Key(key)) => {
+                // Collect keys before taking mutable ref
+                let available: Vec<String> = val
+                    .as_inline_table()
+                    .map(|t| t.iter().map(|(k, _)| k.to_string()).collect())
+                    .unwrap_or_default();
                 if let Some(tbl) = val.as_inline_table_mut() {
+                    let available_refs: Vec<&str> =
+                        available.iter().map(|s| s.as_str()).collect();
                     TomlRefMut::Value(tbl.get_mut(key).ok_or_else(|| {
-                        EditError::KeyNotFound(format!("Key '{}' not found", key))
+                        EditError::KeyNotFound(key_not_found_msg(key, &available_refs))
                     })?)
                 } else {
                     return Err(EditError::InvalidKeyPath(format!(
@@ -655,9 +685,19 @@ fn get_yaml_value(
 
     for segment in segments {
         current = match segment {
-            KeySegment::Key(key) => current
-                .get(key)
-                .ok_or_else(|| EditError::KeyNotFound(format!("Key '{}' not found", key)))?,
+            KeySegment::Key(key) => {
+                let available: Vec<&str> = current
+                    .as_mapping()
+                    .map(|m| {
+                        m.keys()
+                            .filter_map(|k| k.as_str())
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                current
+                    .get(key)
+                    .ok_or_else(|| EditError::KeyNotFound(key_not_found_msg(key, &available)))?
+            }
             KeySegment::Index(idx) => current
                 .get(*idx)
                 .ok_or_else(|| EditError::KeyNotFound(format!("Index {} out of bounds", idx)))?,
@@ -681,9 +721,21 @@ fn set_yaml_value(
     // Navigate to parent
     for segment in &segments[..segments.len() - 1] {
         current = match segment {
-            KeySegment::Key(key) => current
-                .get_mut(key)
-                .ok_or_else(|| EditError::KeyNotFound(format!("Key '{}' not found", key)))?,
+            KeySegment::Key(key) => {
+                let available: Vec<String> = current
+                    .as_mapping()
+                    .map(|m| {
+                        m.keys()
+                            .filter_map(|k| k.as_str().map(|s| s.to_string()))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let available_refs: Vec<&str> =
+                    available.iter().map(|s| s.as_str()).collect();
+                current
+                    .get_mut(key)
+                    .ok_or_else(|| EditError::KeyNotFound(key_not_found_msg(key, &available_refs)))?
+            }
             KeySegment::Index(idx) => current
                 .get_mut(*idx)
                 .ok_or_else(|| EditError::KeyNotFound(format!("Index {} out of bounds", idx)))?,
@@ -884,6 +936,104 @@ name = "old""#;
         let yaml = "outer:\n  inner: old";
         let (result, _) = edit_yaml(yaml, "outer.inner", "new").unwrap();
         assert!(result.contains("new"));
+    }
+
+    #[test]
+    fn test_json_key_not_found_suggestion() {
+        let json = r#"{"name": "old", "value": 42, "description": "test"}"#;
+        let result = edit_json(json, "nme", "\"new\"");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    msg.contains("Did you mean 'name'?"),
+                    "Expected suggestion, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_json_key_not_found_no_suggestion() {
+        let json = r#"{"name": "old", "value": 42}"#;
+        let result = edit_json(json, "zzzzzzzzz", "\"new\"");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    !msg.contains("Did you mean"),
+                    "Expected no suggestion, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_json_nested_key_not_found_suggestion() {
+        let json = r#"{"outer": {"inner": "old", "value": 42}}"#;
+        let result = edit_json(json, "outer.innr", "\"new\"");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    msg.contains("Did you mean 'inner'?"),
+                    "Expected suggestion for nested key, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_toml_key_not_found_suggestion() {
+        let toml = r#"[section]
+name = "old"
+value = 42"#;
+        let result = edit_toml(toml, "section.nme", "\"new\"");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    msg.contains("Did you mean 'name'?"),
+                    "Expected suggestion, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_yaml_key_not_found_suggestion() {
+        let yaml = "name: old\nvalue: 42\ndescription: test";
+        let result = edit_yaml(yaml, "nme", "new");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    msg.contains("Did you mean 'name'?"),
+                    "Expected suggestion, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_yaml_nested_key_not_found_suggestion() {
+        let yaml = "outer:\n  inner: old\n  value: 42";
+        let result = edit_yaml(yaml, "outer.innr", "new");
+        match result {
+            Err(EditError::KeyNotFound(msg)) => {
+                assert!(
+                    msg.contains("Did you mean 'inner'?"),
+                    "Expected suggestion for nested key, got: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected KeyNotFound error, got: {:?}", other),
+        }
     }
 
     #[test]
