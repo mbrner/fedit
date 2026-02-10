@@ -9,6 +9,9 @@
 - Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
 - Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
 
+- Whitespace-insensitive search example:
+  - fedit path.txt "hello  world" -w - replace-with "hi there"  (matches regardless of spaces)
+  
 - Examples
 - Replace a single exact match:
   - fedit example.txt "old" "new"

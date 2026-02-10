@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T14:08:01.547Z",
-  "currentIteration": 8,
+  "updatedAt": "2026-02-10T14:08:02.652Z",
+  "currentIteration": 9,
   "maxIterations": 20,
-  "tasksCompleted": 8,
+  "tasksCompleted": 9,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -65,8 +65,8 @@
       {
         "id": "US-009",
         "title": "Error Types and Handling",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-010",
@@ -198,10 +198,22 @@
       "durationMs": 201211,
       "startedAt": "2026-02-10T14:02:07.463Z",
       "endedAt": "2026-02-10T14:05:28.674Z"
+    },
+    {
+      "iteration": 9,
+      "status": "completed",
+      "taskId": "US-009",
+      "taskTitle": "Error Types and Handling",
+      "taskCompleted": true,
+      "durationMs": 151776,
+      "startedAt": "2026-02-10T14:05:29.769Z",
+      "endedAt": "2026-02-10T14:08:01.545Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-010"
+  ],
   "subagentPanelVisible": false
 }

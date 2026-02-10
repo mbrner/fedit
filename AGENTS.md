@@ -17,6 +17,18 @@ US-001: Single Exact-Match Replacement
   - Update README.md with usage example and AGENTS.md reflecting this feature.
 - US-005: Line Ending Preservation
  
+- US-010: Whitespace-Insensitive Search
+  
+  - Objective: Allow matching search strings regardless of whitespace differences, with optional -w/--ignore-whitespace flag (inactive in structured mode).
+  - Behavior:
+    - CLI accepts -w/--ignore-whitespace to enable whitespace-insensitive matching for non-structured mode.
+    - When enabled, sequences of whitespace in the search match any whitespace sequence in the file.
+    - If -s/--structured is active, whitespace-insensitive matching is ignored (key paths are exact).
+    - Original whitespace in the file is preserved after replacement.
+    - Position mapping tracked via simple offsets; used for replacement correctness.
+  - Notes:
+    - Update README.md with whitespace-insensitive usage examples.
+ 
 - Objective: Preserve dominant line ending style (LF or CRLF) during read/replace/write.
 - Behavior:
   - Detect dominant line ending style from input file.
