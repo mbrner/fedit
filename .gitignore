@@ -4,7 +4,37 @@ __pycache__/
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
 
 # Virtual environments
-.venv
+.venv/
+
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Compiled extension modules
+*.so
+*.dylib
+*.dll
+*.pyd
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Maturin
+*.whl
+
+# OS files
+.DS_Store
+Thumbs.db
