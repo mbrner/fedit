@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import os
+import tempfile
+
 """
 Single Exact-Match Replacement CLI
 
@@ -76,7 +79,8 @@ def main() -> int:
         )
         return 1
 
-    # Perform replacement
+    # Perform replacement using an atomic write to a temporary file
+    tmp_path = None
     try:
         if count == 1:
             idx = indices[0]
@@ -84,11 +88,29 @@ def main() -> int:
         else:
             # Replace all occurrences
             new_content = content.replace(search, replacement)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(new_content)
-        # Output how many replacements were made
-        print(f"Replaced {count} occurrence{'s' if count != 1 else ''} in {path}")
-        return 0
+
+        # Write to a temporary file in the same directory to ensure atomic replace
+        dirn = os.path.dirname(path) or "."
+        fd, tmp_path = tempfile.mkstemp(
+            prefix=".fedit.tmp.", suffix="." + os.path.basename(path), dir=dirn
+        )
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(new_content)
+                f.flush()
+                os.fsync(f.fileno())
+            # Atomic replace
+            os.replace(tmp_path, path)
+            # If we reach here, the temporary file has been moved into place.
+            print(f"Replaced {count} occurrence{'s' if count != 1 else ''} in {path}")
+            return 0
+        finally:
+            # If tmp_path still exists (e.g., replacement failed before moving), clean it up
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
     except Exception as e:
         print(f"Error writing file: {e}", file=sys.stderr)
         return 3

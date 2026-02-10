@@ -3,10 +3,10 @@
   "sessionId": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
   "status": "running",
   "startedAt": "2026-02-10T12:55:19.095Z",
-  "updatedAt": "2026-02-10T12:57:22.930Z",
-  "currentIteration": 1,
+  "updatedAt": "2026-02-10T12:57:24.030Z",
+  "currentIteration": 2,
   "maxIterations": 20,
-  "tasksCompleted": 1,
+  "tasksCompleted": 2,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -23,8 +23,8 @@
       {
         "id": "US-002",
         "title": "Multiple Match Replacement Mode",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-003",
@@ -134,10 +134,22 @@
       "durationMs": 63589,
       "startedAt": "2026-02-10T12:55:22.230Z",
       "endedAt": "2026-02-10T12:56:25.819Z"
+    },
+    {
+      "iteration": 2,
+      "status": "completed",
+      "taskId": "US-002",
+      "taskTitle": "Multiple Match Replacement Mode",
+      "taskCompleted": true,
+      "durationMs": 56009,
+      "startedAt": "2026-02-10T12:56:26.919Z",
+      "endedAt": "2026-02-10T12:57:22.928Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-003"
+  ],
   "subagentPanelVisible": false
 }
