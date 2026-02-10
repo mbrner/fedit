@@ -41,6 +41,27 @@ US-003: Atomic File Write
   - Atomic writes are used to protect against partial writes and corruption on failure
 - Update README.md with usage example and AGENTS.md reflecting this feature.
 
+US-004: Encoding Support
+
+- Objective: Allow specifying file encoding via --encoding/-e so that files not in UTF-8 can be edited safely.
+- Behavior:
+  - CLI accepts -e or --encoding to select the input/output encoding (default: utf-8).
+  - Reads the input file using the specified encoding and writes the output using the same encoding.
+  - If decoding fails, prints a clear error message and exits with a non-zero code.
+  - Supported encodings include UTF-8, UTF-16, ISO-8859-1 (and commonly used variations such as Windows-1252).
+- Notes:
+  - Update README.md with encoding usage examples and reflect this feature in AGENTS.md.
+
+- Objective: Allow specifying file encoding via --encoding/-e so that files not in UTF-8 can be edited safely.
+- Behavior:
+  - CLI accepts -e or --encoding to select the input/output encoding (default: utf-8).
+  - Reads the input file using the specified encoding and writes the output using the same encoding.
+  - If decoding fails, prints a clear error message and exits with a non-zero code.
+  - Supported encodings include UTF-8, UTF-16, ISO-8859-1 (and commonly used variations such as Windows-1252).
+  - Atomic writes are used to avoid corrupting the original file on failure.
+- Notes:
+  - Update README.md with encoding usage examples and reflect this feature in AGENTS.md.
+
 - Objective: Ensure file writes are atomic so power failures or crashes don't leave files in a corrupted state.
 - Behavior:
   - Replacement writes to a temporary file first

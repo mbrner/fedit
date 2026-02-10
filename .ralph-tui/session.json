@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T13:47:44.418Z",
-  "currentIteration": 2,
+  "updatedAt": "2026-02-10T13:47:45.513Z",
+  "currentIteration": 3,
   "maxIterations": 20,
-  "tasksCompleted": 2,
+  "tasksCompleted": 3,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -29,8 +29,8 @@
       {
         "id": "US-003",
         "title": "Atomic File Write",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-004",
@@ -138,10 +138,22 @@
       "durationMs": 129760,
       "startedAt": "2026-02-10T13:43:58.243Z",
       "endedAt": "2026-02-10T13:46:08.003Z"
+    },
+    {
+      "iteration": 3,
+      "status": "completed",
+      "taskId": "US-003",
+      "taskTitle": "Atomic File Write",
+      "taskCompleted": true,
+      "durationMs": 95299,
+      "startedAt": "2026-02-10T13:46:09.117Z",
+      "endedAt": "2026-02-10T13:47:44.416Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-004"
+  ],
   "subagentPanelVisible": false
 }

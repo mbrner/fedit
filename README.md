@@ -1,5 +1,6 @@
 Usage
 - Run the CLI with: `fedit <path> <search-str> <replace-str> [--encoding <ENC>] [--multiple]`
+- Encoding option: default UTF-8; specify with --encoding or -e (e.g., utf-8, utf-16, iso-8859-1).
 
 - Examples
 - Replace a single exact match:
