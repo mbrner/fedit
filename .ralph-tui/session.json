@@ -3,7 +3,7 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T13:46:09.126Z",
+  "updatedAt": "2026-02-10T13:47:44.418Z",
   "currentIteration": 2,
   "maxIterations": 20,
   "tasksCompleted": 2,
@@ -142,8 +142,6 @@
   ],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
-  "activeTaskIds": [
-    "US-003"
-  ],
+  "activeTaskIds": [],
   "subagentPanelVisible": false
 }
