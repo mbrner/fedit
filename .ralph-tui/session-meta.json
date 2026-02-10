@@ -1,14 +1,15 @@
 {
   "id": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
-  "status": "running",
+  "status": "interrupted",
   "startedAt": "2026-02-10T12:55:18.370Z",
-  "updatedAt": "2026-02-10T12:57:22.962Z",
+  "updatedAt": "2026-02-10T12:59:54.854Z",
   "agentPlugin": "opencode",
   "trackerPlugin": "json",
   "prdPath": "./tasks/prd-mvp.json",
-  "currentIteration": 2,
+  "currentIteration": 3,
   "maxIterations": 20,
   "totalTasks": 0,
-  "tasksCompleted": 2,
-  "cwd": "/home/mboerner/projects/fedit"
+  "tasksCompleted": 3,
+  "cwd": "/home/mboerner/projects/fedit",
+  "endedAt": "2026-02-10T12:59:54.854Z"
 }

@@ -3,10 +3,10 @@
   "sessionId": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
   "status": "running",
   "startedAt": "2026-02-10T12:55:19.095Z",
-  "updatedAt": "2026-02-10T12:59:35.354Z",
-  "currentIteration": 2,
+  "updatedAt": "2026-02-10T12:59:54.840Z",
+  "currentIteration": 3,
   "maxIterations": 20,
-  "tasksCompleted": 2,
+  "tasksCompleted": 3,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -29,8 +29,8 @@
       {
         "id": "US-003",
         "title": "Atomic File Write",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-004",
@@ -144,6 +144,16 @@
       "durationMs": 56009,
       "startedAt": "2026-02-10T12:56:26.919Z",
       "endedAt": "2026-02-10T12:57:22.928Z"
+    },
+    {
+      "iteration": 3,
+      "status": "completed",
+      "taskId": "US-003",
+      "taskTitle": "Atomic File Write",
+      "taskCompleted": true,
+      "durationMs": 131330,
+      "startedAt": "2026-02-10T12:57:24.022Z",
+      "endedAt": "2026-02-10T12:59:35.352Z"
     }
   ],
   "skippedTaskIds": [],
