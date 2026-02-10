@@ -27,3 +27,27 @@ US-002: Multiple Match Replacement Mode
 - Notes:
   - Atomic writes are used to update the file to avoid corruption on failure.
 - Update README.md with usage example and AGENTS.md reflecting this feature.
+
+US-003: Atomic File Write
+
+- Objective: Ensure file writes are atomic so power failures or crashes don't leave files in a corrupted state.
+- Behavior:
+  - Replacement writes to a temporary file first
+  - Temporary file is flushed to disk before replacing the original
+  - Original file is atomically replaced using rename operation
+  - If the write fails, the original file remains unchanged
+  - Temporary files are cleaned up on both success and failure
+- Notes:
+  - Atomic writes are used to protect against partial writes and corruption on failure
+- Update README.md with usage example and AGENTS.md reflecting this feature.
+
+- Objective: Ensure file writes are atomic so power failures or crashes don't leave files in a corrupted state.
+- Behavior:
+  - Replacement writes to a temporary file first
+  - Temporary file is flushed to disk before replacing the original
+  - Original file is atomically replaced using rename operation
+  - If the write fails, the original file remains unchanged
+  - Temporary files are cleaned up on both success and failure
+- Notes:
+  - Atomic writes are used to protect against partial writes and corruption on failure
+- Update README.md with usage example and AGENTS.md reflecting this feature.
