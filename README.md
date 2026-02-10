@@ -1,5 +1,11 @@
 # FEdit - Safe File Editing
 
+[![CI](https://github.com/mbrner/fedit/actions/workflows/ci.yml/badge.svg)](https://github.com/mbrner/fedit/actions/workflows/ci.yml)
+[![Python 3.10-3.14](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org)
+[![Rust](https://img.shields.io/badge/rust-stable-orange)](https://www.rust-lang.org)
+[![Platform: Linux | macOS](https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey)](https://github.com/mbrner/fedit)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 FEdit is a Rust/Python tool for safe, atomic file edits. It provides exact-match search-and-replace with automatic line ending and encoding preservation.
 
 ## Features
@@ -73,7 +79,7 @@ fedit settings.toml -s version '"1.0.0"' -f toml
 ## Building from Source
 
 ```bash
-# Prerequisites: Rust 1.82+, Python 3.9-3.12, maturin
+# Prerequisites: Rust 1.82+, Python 3.10-3.14, maturin
 
 cargo build --release                           # Rust only
 maturin develop                                 # Python package (dev mode)
