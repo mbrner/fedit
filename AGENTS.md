@@ -1,161 +1,142 @@
 # AGENTS.md - FEdit Development Guide
 
-This document provides context for AI agents and developers working on the FEdit codebase.
-
 ## Project Overview
 
-**FEdit** (Exact File Edit Toolkit) is a POSIX-focused Rust/Python hybrid tool for structured search-and-replace operations. It provides safe, atomic file edits with exact-match search-and-replace while preserving file integrity, line endings, and encodings.
+**FEdit** is a Rust/Python tool for safe, atomic file editing with search-and-replace. It provides fuzzy text matching and structured editing for JSON/YAML/TOML files.
 
 ## Architecture
 
-FEdit uses a hybrid Rust/Python architecture:
-- **Rust core** (`src/lib.rs`, `src/api.rs`): Core replacement engine with PyO3 Python bindings
-- **Python CLI** (`bin/fedit.py`): Main command-line interface
-- **Structured mode scripts**: Separate handlers for JSON and YAML/TOML formats
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Python API                              │
+│  fedit.edit()              fedit.edit_structured()          │
+│  src/fedit/__init__.py                                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PyO3 Bindings                            │
+│  src/lib.rs                                                 │
+│  - edit_fuzzy()           - edit_structured_file()          │
+│  - EditResultWithDiff     - StructuredEditResult            │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Rust Core                               │
+│  src/api.rs              src/structured.rs                  │
+│  - Text replacement      - JSON/JSONC/JSON5 editing         │
+│  - Fuzzy matching        - TOML editing (toml_edit)         │
+│  - Diff generation       - YAML editing (serde_yaml)        │
+│  - BOM handling          - Key path parsing                 │
+│  - Line ending detection                                    │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## Project Structure
 
 ```
 fedit/
-├── bin/                           # CLI scripts
-│   ├── fedit.py                   # Main CLI entry point
-│   ├── fedit_structured_json.py   # Structured JSON path replacement
-│   ├── fedit_structured_yaml_toml.py  # Structured YAML/TOML replacement
-│   └── gen_man.sh                 # Manpage generation script
 ├── src/
-│   ├── lib.rs                     # Rust library with PyO3 module
-│   ├── api.rs                     # Core Rust replacement engine
-│   ├── bin/
-│   │   └── fedit_man.rs           # Rust binary for manpage generation
-│   └── fedit/                     # Python package
-│       ├── __init__.py            # Python module entry point
-│       ├── _core.pyi              # Type stubs for Rust bindings
-│       └── py.typed               # PEP 561 type marker
-├── tasks/                         # Product requirements documents
-├── .github/workflows/             # CI/CD configuration
-├── Cargo.toml                     # Rust project configuration
-├── pyproject.toml                 # Python packaging configuration
-└── README.md                      # User documentation
+│   ├── api.rs              # Core replacement engine (1000+ lines)
+│   │                       # - replace_in_content()
+│   │                       # - fuzzy_find_text(), normalize_for_fuzzy_match()
+│   │                       # - generate_diff() (LCS-based)
+│   │                       # - BOM handling, line ending detection
+│   │
+│   ├── lib.rs              # PyO3 Python bindings (550+ lines)
+│   │                       # - edit(), edit_fuzzy()
+│   │                       # - edit_structured_file(), edit_structured_string()
+│   │                       # - All Py* wrapper classes
+│   │
+│   ├── structured.rs       # Structured file editing (800+ lines)
+│   │                       # - JSON/JSONC/JSON5 via serde_json/json5
+│   │                       # - TOML via toml_edit (preserves formatting)
+│   │                       # - YAML via serde_yaml
+│   │                       # - Key path parsing: "foo.bar[0].baz"
+│   │
+│   └── fedit/              # Python package
+│       ├── __init__.py     # Simplified Python API
+│       │                   # - edit(path, old, new)
+│       │                   # - edit_structured(path, key, value)
+│       ├── _core.pyi       # Type stubs for Rust bindings
+│       └── py.typed        # PEP 561 marker
+│
+├── Cargo.toml              # Rust dependencies
+├── pyproject.toml          # Python packaging (maturin)
+└── README.md               # User documentation
 ```
 
-## Feature Tracking
+## Key Features
 
-### Implemented Features
+### Text Editing (`api.rs`)
+- **Fuzzy matching**: Normalizes smart quotes (`""''` → `"'`), Unicode dashes, special spaces
+- **Atomic writes**: temp file + rename pattern
+- **BOM handling**: Strips/preserves UTF-8 BOM
+- **Line endings**: Auto-detects LF/CRLF, preserves on write
+- **Diff generation**: LCS-based unified diff with line numbers
 
-- **US-001**: Single Exact-Match Replacement
-- **US-002**: Multiple Match Replacement (`-m/--multiple`)
-- **US-003**: Atomic File Write (temp file + rename)
-- **US-004**: Encoding Support (`-e/--encoding`) - UTF-8, UTF-16, ISO-8859-1, Windows-1252
-- **US-005**: Line Ending Preservation (LF/CRLF auto-detection)
-- **US-006**: Dry Run Mode (`-n/--dry-run`)
-- **US-007**: Whitespace-Insensitive Search (`-w/--ignore-whitespace`)
-- **US-011**: Structured Key Mode - JSON (`-s/--structured`)
-- **US-012**: Structured Key Mode - YAML/TOML (experimental)
-- **US-014**: Python Wheel Packaging
-- **US-015**: CLI Manpage Generation
-- **US-016**: Cross-Platform Binary Distribution
+### Structured Editing (`structured.rs`)
+- **JSON**: Standard JSON via `serde_json`
+- **JSONC**: JSON with comments (strips comments before parsing)
+- **JSON5**: Relaxed JSON via `json5` crate
+- **TOML**: Via `toml_edit` (preserves formatting and comments)
+- **YAML**: Via `serde_yaml`
+- **Key paths**: `"server.port"`, `"users[0].name"`, `"config.items[2].value"`
 
-### US-011: Structured Key Mode - JSON
+## Python API
 
-This feature introduces structured key path mode for JSON files. When `-s/--structured` is supplied:
-- The search string is treated as a JSON key path (supporting nested keys and array indices)
-- The replace string becomes the new value for that path
-- JSON formatting is preserved by applying changes via a parsed JSON tree
-- Strict path resolution returns errors for invalid or ambiguous paths
+```python
+import fedit
 
-**Example usage:**
-```bash
-python bin/fedit_structured_json.py -s config.json "settings.port" "8080"
-python bin/fedit_structured_json.py -s data.json "items[0].name" '"new-name"'
+# Text replacement (fuzzy matching enabled)
+result = fedit.edit("file.py", "old_text", "new_text")
+result = fedit.edit("file.py", "old", "new", multiple=True)
+result = fedit.edit("file.py", "old", "new", dry_run=True)
+
+# Structured editing
+result = fedit.edit_structured("config.json", "server.port", 8080)
+result = fedit.edit_structured("config.yaml", "db.host", "localhost")
 ```
 
-### US-012: Structured Key Mode - YAML/TOML
-
-Experimental support for YAML and TOML structured replacement:
-- Uses regex-based line manipulation to preserve formatting/comments
-- Detects format by file extension or `--format` flag
-
-**Example usage:**
-```bash
-python bin/fedit_structured_yaml_toml.py config.yaml "database.host" "localhost"
-python bin/fedit_structured_yaml_toml.py -f toml settings.toml "server.port" "3000"
-```
-
-## Build & Development
-
-### Prerequisites
-
-- **Rust**: Edition 2024 (nightly or recent stable)
-- **Python**: 3.9 - 3.12
-- **Maturin**: For building Python wheels with Rust extensions
-- **C compiler/linker**: Required for Rust builds (`build-essential` on Ubuntu/Debian, `gcc` on Fedora, `base-devel` on Arch, Xcode CLI tools on macOS)
-
-### Building
+## CLI Usage
 
 ```bash
-# Build Rust library only
-cargo build --release
+# Text mode
+fedit file.txt "old" "new"
+fedit file.txt "old" "new" -m        # Multiple
+fedit file.txt "old" "new" -n -d     # Dry run with diff
 
-# Build Python wheel with maturin (recommended)
-pip install maturin
-maturin develop          # Install in development mode
-maturin build            # Build wheel for distribution
-
-# Using uv
-uv pip install -e .
+# Structured mode
+fedit config.json -s server.port 8080
+fedit config.yaml -s database.host localhost
 ```
 
-### Running Without Build
-
-The Python CLI can be run directly without building the Rust extension:
-```bash
-python bin/fedit.py <path> <search> <replace>
-```
-
-## Testing
-
-Currently, no formal test suite exists. Manual testing can be performed:
+## Building & Testing
 
 ```bash
-# Basic replacement
-python bin/fedit.py test.txt "old text" "new text"
-
-# Multiple replacements
-python bin/fedit.py test.txt "old" "new" --multiple
-
-# Dry run
-python bin/fedit.py test.txt "search" "replace" --dry-run
-
-# Whitespace-insensitive
-python bin/fedit.py test.txt "hello  world" "goodbye" -w
-
-# Structured JSON mode
-python bin/fedit_structured_json.py -s config.json "settings.port" "8080"
-
-# Structured YAML/TOML
-python bin/fedit_structured_yaml_toml.py config.yaml "database.host" "localhost"
+cargo build --release    # Build Rust
+cargo test               # Run 40 tests
+maturin develop          # Install Python package
 ```
-
-## CI/CD
-
-GitHub Actions workflow (`.github/workflows/us-016-binary-distribution.yml`) builds cross-platform binaries on tag pushes (`v*`):
-- Linux x86_64 and aarch64
-- macOS x86_64 and arm64
-- Generates SHA256 checksums for all binaries
 
 ## Exit Codes
 
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1 | No matches found / Multiple matches without `--multiple` |
-| 2 | File not found / Invalid arguments |
-| 3 | Write error |
-| 4 | Encoding error |
+| 1 | No match / Multiple matches |
+| 2 | File not found / Invalid args |
 
-## Future Work
+## Dependencies
 
-- Expand test coverage with automated tests
-- Complete PyO3 bindings to expose full Rust API to Python
-- Add support for more structured formats
-- Improve YAML/TOML structured mode robustness
+**Rust** (`Cargo.toml`):
+- `pyo3` - Python bindings
+- `serde`, `serde_json` - JSON serialization
+- `json5` - JSON5 parsing
+- `toml_edit` - TOML with formatting preservation
+- `serde_yaml` - YAML support
+- `regex` - Whitespace normalization
+
+**Python** (`pyproject.toml`):
+- `maturin` - Build system for Rust extensions

@@ -1,13 +1,16 @@
 [project]
 name = "fedit"
 version = "0.1.0"
-description = "Add your description here"
+description = "Safe, atomic file editing with search-and-replace"
 readme = "README.md"
 authors = [
     { name = "Mathis Börner", email = "mathis.boerner@googlemail.com" }
 ]
 requires-python = ">=3.9,<3.13"
 dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
 
 [project.scripts]
 fedit = "fedit:main"

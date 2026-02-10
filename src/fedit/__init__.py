@@ -1,183 +1,216 @@
-"""FEdit: Exact File Edit Toolkit - structured search-and-replace operations.
+"""FEdit: Safe, atomic file editing with search-and-replace.
 
-This module provides Python bindings to the Rust-based FEdit library.
+Main API:
+    edit(path, old, new)           - Replace text in a file
+    edit_structured(path, key, value) - Edit JSON/YAML/TOML by key path
+
+Example:
+    >>> import fedit
+    >>> fedit.edit("config.py", "DEBUG = True", "DEBUG = False")
+    >>> fedit.edit_structured("config.json", "server.port", 8080)
 """
 
 import sys
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import Any, Optional, Union
 
 # Import from Rust core module
 from fedit._core import (
-    Encoding,
-    EditResult,
-    edit,
-    replace_in_string,
-    read,
-    detect_line_ending,
+    # Result types
+    EditResultWithDiff,
+    StructuredEditResult,
+    # Core functions
+    edit_fuzzy as _edit_fuzzy,
+    edit_structured_file as _edit_structured_file,
 )
 
 __all__ = [
-    "Encoding",
-    "EditResult",
     "edit",
-    "replace_in_string",
-    "read",
-    "detect_line_ending",
-    "edit_file",
-    "main",
+    "edit_structured",
+    "EditResultWithDiff",
+    "StructuredEditResult",
 ]
 
 
-def edit_file(
-    path: str,
-    search: str,
-    replace: str,
+def edit(
+    path: Union[str, Path],
+    old_text: str,
+    new_text: str,
     *,
     multiple: bool = False,
-    ignore_whitespace: bool = False,
     encoding: str = "utf-8",
     dry_run: bool = False,
-) -> EditResult:
-    """Edit a file in place.
+) -> EditResultWithDiff:
+    """Replace text in a file.
+
+    Uses fuzzy matching by default: tries exact match first, then falls back
+    to matching with normalized smart quotes, dashes, and whitespace.
 
     Args:
         path: Path to the file to edit
-        search: The string to search for
-        replace: The replacement string
-        multiple: If True, replace all occurrences
-        ignore_whitespace: If True, treat consecutive whitespace as equivalent
+        old_text: Text to find and replace
+        new_text: Replacement text
+        multiple: Replace all occurrences (default: False, error if multiple found)
         encoding: File encoding (default: "utf-8")
-        dry_run: If True, don't actually modify the file
+        dry_run: Preview changes without modifying the file
 
     Returns:
-        EditResult with replacement count and detected line ending
+        EditResultWithDiff with content, replacements, diff, and line_ending
 
     Raises:
-        FileNotFoundError: If the file does not exist
-        ValueError: If no matches found, multiple matches without multiple=True,
-                   or encoding error
+        FileNotFoundError: If file does not exist
+        ValueError: If text not found, or multiple matches without multiple=True
+
+    Example:
+        >>> result = fedit.edit("app.py", "v1.0", "v2.0")
+        >>> print(f"Made {result.replacements} replacement(s)")
+        >>> print(result.diff)
     """
-    return edit(
-        path,
-        search,
-        replace,
+    return _edit_fuzzy(
+        str(path),
+        old_text,
+        new_text,
         multiple=multiple,
-        ignore_whitespace=ignore_whitespace,
+        encoding=encoding,
+        dry_run=dry_run,
+    )
+
+
+def edit_structured(
+    path: Union[str, Path],
+    key_path: str,
+    value: Any,
+    *,
+    format: Optional[str] = None,
+    encoding: str = "utf-8",
+    dry_run: bool = False,
+) -> StructuredEditResult:
+    """Edit a structured file (JSON, YAML, TOML) by key path.
+
+    Args:
+        path: Path to the file to edit
+        key_path: Dot-separated path (e.g., "server.port", "users[0].name")
+        value: New value (str, int, float, bool, or JSON string for complex values)
+        format: Force format ("json", "jsonc", "json5", "toml", "yaml"), or auto-detect
+        encoding: File encoding (default: "utf-8")
+        dry_run: Preview changes without modifying the file
+
+    Returns:
+        StructuredEditResult with content, key_path, old_value, new_value
+
+    Raises:
+        FileNotFoundError: If file does not exist
+        ValueError: If key path invalid, key not found, or parse error
+
+    Example:
+        >>> fedit.edit_structured("config.json", "server.port", 8080)
+        >>> fedit.edit_structured("config.yaml", "database.host", "localhost")
+    """
+    # Convert value to string
+    if isinstance(value, bool):
+        value_str = "true" if value else "false"
+    elif isinstance(value, (int, float)):
+        value_str = str(value)
+    elif isinstance(value, str):
+        value_str = value
+    else:
+        import json
+
+        value_str = json.dumps(value)
+
+    return _edit_structured_file(
+        str(path),
+        key_path,
+        value_str,
+        format=format,
         encoding=encoding,
         dry_run=dry_run,
     )
 
 
 def main() -> int:
-    """CLI entry point - delegates to Rust binary or provides Python fallback."""
+    """CLI entry point."""
     import argparse
 
     parser = argparse.ArgumentParser(
         prog="fedit",
-        description="FEdit: Whitespace-insensitive search and replace with encoding and line ending preservation",
+        description="Safe, atomic file editing with search-and-replace",
         epilog="""Examples:
-  Replace a single exact match: fedit <path> <search> <replace>
-  Replace all matches: fedit <path> <search> <replace> --multiple
-  Whitespace-insensitive search: fedit <path> <search> <replace> -w
-  Use a specific encoding: fedit <path> <search> <replace> -e utf-16
+  fedit file.txt "old" "new"              # Replace text
+  fedit file.txt "old" "new" -m           # Replace all occurrences
+  fedit config.json -s server.port 8080   # Edit JSON by key path
+  fedit config.yaml -s db.host localhost  # Edit YAML by key path
 """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("path", help="Path to the target file")
+    parser.add_argument("path", help="File to edit")
+    parser.add_argument("search", help="Text to find (or key path with -s)")
+    parser.add_argument("replace", help="Replacement text (or new value with -s)")
     parser.add_argument(
-        "search", help="Search string to replace (may contain whitespace)"
-    )
-    parser.add_argument("replace", help="Replacement string")
-    parser.add_argument(
-        "-e",
-        "--encoding",
-        default="utf-8",
-        choices=["utf-8", "utf-16", "iso-8859-1", "windows-1252"],
-        help="File encoding to use (default: UTF-8)",
-    )
-    parser.add_argument(
-        "-m",
-        "--multiple",
+        "-s",
+        "--structured",
         action="store_true",
-        help="Replace all occurrences when multiple matches exist",
+        help="Structured mode: edit by key path (JSON/YAML/TOML)",
+    )
+    parser.add_argument(
+        "-f",
+        "--format",
+        choices=["json", "jsonc", "json5", "toml", "yaml"],
+        help="Force file format (with -s)",
+    )
+    parser.add_argument(
+        "-m", "--multiple", action="store_true", help="Replace all occurrences"
+    )
+    parser.add_argument(
+        "-e", "--encoding", default="utf-8", help="File encoding (default: utf-8)"
     )
     parser.add_argument(
         "-n",
         "--dry-run",
         action="store_true",
-        help="Preview changes without modifying the file",
+        help="Preview changes without modifying file",
     )
-    parser.add_argument(
-        "-w",
-        "--ignore-whitespace",
-        action="store_true",
-        help="Whitespace-insensitive search (treats consecutive whitespace as equivalent)",
-    )
-    parser.add_argument(
-        "-s",
-        "--structured",
-        action="store_true",
-        help="Structured mode: exact key-path matching (for JSON/YAML/TOML)",
-    )
+    parser.add_argument("-d", "--diff", action="store_true", help="Show diff output")
 
     args = parser.parse_args()
 
-    # Structured mode not yet in Rust - fallback message
-    if args.structured:
-        print(
-            "Structured mode is not yet implemented in the Python CLI.",
-            file=sys.stderr,
-        )
-        print(
-            "Use the Python scripts for structured JSON/YAML/TOML editing:",
-            file=sys.stderr,
-        )
-        print(
-            "  python bin/fedit_structured_json.py -s file.json 'path.to.key' 'value'",
-            file=sys.stderr,
-        )
-        return 2
-
     try:
-        result = edit(
-            args.path,
-            args.search,
-            args.replace,
-            multiple=args.multiple,
-            ignore_whitespace=args.ignore_whitespace,
-            encoding=args.encoding,
-            dry_run=args.dry_run,
-        )
-
-        if args.dry_run:
-            print(
-                f"Dry-run: would replace {result.replacements} occurrence(s) in {args.path}"
+        if args.structured:
+            result = edit_structured(
+                args.path,
+                args.search,
+                args.replace,
+                format=args.format,
+                encoding=args.encoding,
+                dry_run=args.dry_run,
             )
+            action = "Would set" if args.dry_run else "Set"
+            print(f"{action} {result.key_path} = {result.new_value}")
+            if result.old_value:
+                print(f"  (was: {result.old_value})")
         else:
+            result = edit(
+                args.path,
+                args.search,
+                args.replace,
+                multiple=args.multiple,
+                encoding=args.encoding,
+                dry_run=args.dry_run,
+            )
+            action = "Would replace" if args.dry_run else "Replaced"
             s = "s" if result.replacements != 1 else ""
-            print(f"Replaced {result.replacements} occurrence{s} in {args.path}")
+            print(f"{action} {result.replacements} occurrence{s}")
+            if args.diff and result.diff:
+                print("\n" + result.diff)
 
         return 0
 
-    except FileNotFoundError as e:
-        print(f"No such file: {args.path}", file=sys.stderr)
+    except FileNotFoundError:
+        print(f"Error: File not found: {args.path}", file=sys.stderr)
         return 2
     except ValueError as e:
-        msg = str(e)
-        if "No matches found" in msg:
-            print(msg, file=sys.stderr)
-            return 1
-        elif "Multiple matches found" in msg:
-            print(msg, file=sys.stderr)
-            return 1
-        elif "Encoding error" in msg:
-            print(msg, file=sys.stderr)
-            return 4
-        else:
-            print(msg, file=sys.stderr)
-            return 2
-    except IOError as e:
-        print(f"Error writing file: {e}", file=sys.stderr)
-        return 3
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 2
