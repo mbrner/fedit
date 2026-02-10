@@ -1,0 +1,326 @@
+{
+  "name": "FEdit – Exact File Edit Toolkit",
+  "description": "FEdit is a POSIX-focused Rust library and CLI tool that enables robust, safe file edits via exact-match search-and-replace operations. It addresses the common problem of making precise, predictable text modifications while preserving file integrity, line endings, and encodings.",
+  "branchName": "y",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Single Exact-Match Replacement",
+      "description": "As a developer, I want to replace exactly one occurrence of a search string in a file so that I can make precise edits without accidentally modifying multiple locations.",
+      "acceptanceCriteria": [
+        "CLI accepts positional arguments: `fedit <target> <search-str> <replace-str>`",
+        "When exactly one match exists, the replacement is performed",
+        "When zero matches exist, an error message states \"No matches found for: [search-str]\"",
+        "When multiple matches exist, an error message states \"Multiple matches found ([count]); use --multiple to replace all\"",
+        "Original file is unchanged when an error occurs",
+        "Exit code is 0 on success, non-zero on error",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with usage example"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-002",
+      "title": "Multiple Match Replacement Mode",
+      "description": "As a developer, I want to optionally replace all occurrences of a search string so that I can perform bulk replacements when intended.",
+      "acceptanceCriteria": [
+        "CLI accepts `-m` or `--multiple` flag to enable multiple replacements",
+        "When `-m` is provided, all occurrences are replaced",
+        "Output displays the count of replacements made",
+        "When `-m` is provided and zero matches exist, an error message is displayed",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with usage example"
+      ],
+      "priority": 2,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-003",
+      "title": "Atomic File Write",
+      "description": "As a developer, I want file writes to be atomic so that power failures or crashes don't leave files in a corrupted state.",
+      "acceptanceCriteria": [
+        "Replacement writes to a temporary file first",
+        "Temporary file is flushed to disk before replacing the original",
+        "Original file is atomically replaced using rename operation",
+        "If the write fails, the original file remains unchanged",
+        "Temporary files are cleaned up on both success and failure",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with safety guarantees section"
+      ],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-004",
+      "title": "Encoding Support",
+      "description": "As a developer, I want to specify file encoding so that I can edit files that aren't UTF-8.",
+      "acceptanceCriteria": [
+        "CLI accepts `--encoding` or `-e` argument",
+        "Default encoding is UTF-8 when not specified",
+        "Common encodings are supported (UTF-8, UTF-16, ISO-8859-1)",
+        "Clear error message when encoding cannot decode the file",
+        "Output file uses the same encoding as the input",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with encoding documentation"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-005",
+      "title": "Line Ending Preservation",
+      "description": "As a developer, I want line endings to be preserved so that files maintain their format.",
+      "acceptanceCriteria": [
+        "Tool detects the dominant line ending style (LF or CRLF) in the file",
+        "All line endings in the output match the detected dominant style",
+        "Replacement strings containing `\\n` are converted to the file's line ending style",
+        "Files with no line endings are written without adding any",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with line ending behavior"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-006",
+      "title": "Dry Run Mode",
+      "description": "As a developer, I want to preview changes without modifying the file so that I can verify the edit before committing.",
+      "acceptanceCriteria": [
+        "CLI accepts `--dry-run` or `-n` flag",
+        "When `--dry-run` is provided, no file modifications occur",
+        "Output shows what would be changed (before/after preview)",
+        "Output indicates the line number(s) where changes would occur",
+        "Exit code reflects whether the operation would succeed",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with dry-run example"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-007",
+      "title": "CLI Help and Usage",
+      "description": "As a user, I want comprehensive help text so that I can understand all available options and see usage examples.",
+      "acceptanceCriteria": [
+        "`fedit --help` displays all available flags and arguments",
+        "Each flag includes a description of its purpose",
+        "Usage examples are provided for common scenarios",
+        "Help text fits within 80-column terminal width",
+        "Short and long flag variants are documented (e.g., `-m` and `--multiple`)",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with complete CLI reference"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-008",
+      "title": "Rust Library API - Core Function",
+      "description": "As a Rust developer, I want a library function to perform replacements so that I can integrate FEdit into my applications.",
+      "acceptanceCriteria": [
+        "Public function accepts file content as string and replacement parameters",
+        "Function returns `Result<EditResult, EditError>`",
+        "`EditResult` contains the modified content and count of replacements",
+        "Options struct allows enabling/disabling multiple replacements",
+        "Function is documented with rustdoc including examples",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with library usage example"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-009",
+      "title": "Error Types and Handling",
+      "description": "As a Rust developer, I want well-defined error types so that I can handle different failure modes appropriately.",
+      "acceptanceCriteria": [
+        "`EditError::NotFound` is returned when search string has no matches",
+        "`EditError::MultipleFound(count)` is returned when uniqueness is required but multiple matches exist",
+        "`EditError::IoError` wraps underlying I/O errors with context",
+        "`EditError::EncodingError` is returned for encoding issues",
+        "`EditError::InvalidKeyPath(path)` is returned for invalid structured mode paths",
+        "`EditError::KeyNotFound(path)` is returned when structured mode path doesn't exist in document",
+        "All error types implement `std::error::Error` and `Display`",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with error handling documentation"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-010",
+      "title": "Whitespace-Insensitive Search",
+      "description": "As a developer, I want to match text regardless of whitespace differences so that I can find content even when spacing varies.",
+      "acceptanceCriteria": [
+        "CLI accepts `--ignore-whitespace` or `-w` flag",
+        "When enabled, consecutive whitespace in search matches any whitespace sequence in file",
+        "Original whitespace in the file is preserved after replacement",
+        "Position mapping tracks original byte offsets for accurate replacement",
+        "Works correctly with multi-line search strings",
+        "Whitespace flag is ignored when structured mode (`-s`) is active (key paths are exact)",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with whitespace-insensitive search example"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-011",
+      "title": "Structured Key Mode - JSON",
+      "description": "As a developer, I want to specify a JSON path to locate and replace a value so that I can edit structured data safely.",
+      "acceptanceCriteria": [
+        "CLI accepts `--structured` or `-s` flag to enable structured-key mode",
+        "In structured mode, `<search-str>` is interpreted as a key path (e.g., `root.child.field`)",
+        "In structured mode, `<replace-str>` is the new value for the resolved path",
+        "Path syntax supports nested keys: `config.database.host`",
+        "Path syntax supports array indices: `items[0].name`",
+        "Replacement updates only the resolved value's content, not its quotes or structure",
+        "JSON formatting (indentation, spacing) is preserved via string manipulation",
+        "Error `InvalidKeyPath` is returned for paths that don't exist",
+        "Error `AmbiguousPath` is returned if path matches multiple locations (malformed JSON)",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with structured mode examples showing `fedit -s file.json \"config.port\" \"8080\"`"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-012",
+      "title": "Structured Key Mode - YAML and TOML",
+      "description": "As a developer, I want structured-key mode to work with YAML and TOML files so that I can edit configuration files safely.",
+      "acceptanceCriteria": [
+        "YAML files are detected by extension (.yml, .yaml) or `--format yaml` flag",
+        "TOML files are detected by extension (.toml) or `--format toml` flag",
+        "Same path syntax works across all supported formats",
+        "Replacement uses string manipulation (not parse-serialize) to preserve formatting",
+        "Comments are preserved (best-effort: may fail on complex nested structures)",
+        "If formatting cannot be preserved, operation fails with clear error message",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with YAML/TOML examples and limitations"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-013",
+      "title": "Python Bindings via Maturin",
+      "description": "As a Python developer, I want to use FEdit from Python so that I can integrate it into Python-based tooling.",
+      "acceptanceCriteria": [
+        "Python bindings are built using maturin",
+        "`fedit.replace_exact(content, search, replace)` function exists",
+        "`fedit.replace_exact(content, search, replace, allow_multiple=True)` works",
+        "Python exceptions mirror Rust error types (`NotFoundError`, `MultipleFoundError`, etc.)",
+        "Function accepts and returns Python strings",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with Python usage examples"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-014",
+      "title": "Python Wheel Packaging",
+      "description": "As a Python developer, I want to install FEdit via pip so that I can easily add it to my projects.",
+      "acceptanceCriteria": [
+        "Wheels are built for Linux (manylinux2014) x86_64 and aarch64",
+        "Wheels are built for macOS x86_64 and aarch64 (universal2)",
+        "Wheels support Python 3.9, 3.10, 3.11, and 3.12",
+        "`pip install fedit` installs the package successfully",
+        "Package exposes type information via `py.typed` marker and inline annotations",
+        "README is included in package metadata via pyproject.toml",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with pip installation instructions"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-015",
+      "title": "CLI Manpage Generation",
+      "description": "As a Unix user, I want a manpage so that I can access documentation via the standard `man` command.",
+      "acceptanceCriteria": [
+        "Manpage is generated from CLI definition (via clap_mangen or similar)",
+        "Manpage includes all commands, flags, and options",
+        "Manpage includes examples section",
+        "Manpage is included in Linux/macOS packages",
+        "`man fedit` displays the documentation after installation",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with manpage availability"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-016",
+      "title": "Cross-Platform Binary Distribution (POSIX)",
+      "description": "As a user, I want pre-built binaries for my platform so that I don't need a Rust toolchain to install FEdit.",
+      "acceptanceCriteria": [
+        "Linux binaries are built for x86_64 and aarch64",
+        "macOS binaries are built for x86_64 and aarch64 (Apple Silicon)",
+        "Binaries are available as GitHub release assets",
+        "SHA256 checksums are provided for all binaries",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with binary installation instructions"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-017",
+      "title": "Linux Package Distribution",
+      "description": "As a Linux user, I want to install FEdit via my package manager so that updates are managed automatically.",
+      "acceptanceCriteria": [
+        ".deb package is built for Debian/Ubuntu",
+        ".rpm package is built for Fedora/RHEL",
+        "Packages include the binary, manpage, and shell completions",
+        "Package metadata includes description, license, and homepage",
+        "AGENTS.md is updated to reflect this feature",
+        "README.md is updated with package manager instructions"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-02-10T13:40:34.713Z",
+    "version": "1.0.0",
+    "sourcePrd": "prd-untitled-feature.md",
+    "updatedAt": "2026-02-10T13:43:57.124Z"
+  }
+}

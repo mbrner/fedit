@@ -1,15 +1,14 @@
 {
-  "id": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
-  "status": "interrupted",
-  "startedAt": "2026-02-10T12:55:18.370Z",
-  "updatedAt": "2026-02-10T12:59:54.854Z",
+  "id": "6b3e97e5-899e-43cb-a583-477b6500b71c",
+  "status": "running",
+  "startedAt": "2026-02-10T13:41:06.920Z",
+  "updatedAt": "2026-02-10T13:41:06.920Z",
   "agentPlugin": "opencode",
   "trackerPlugin": "json",
-  "prdPath": "./tasks/prd-mvp.json",
-  "currentIteration": 3,
+  "prdPath": "./tasks/prd-mvp-v2.json",
+  "currentIteration": 0,
   "maxIterations": 20,
   "totalTasks": 0,
-  "tasksCompleted": 3,
-  "cwd": "/home/mboerner/projects/fedit",
-  "endedAt": "2026-02-10T12:59:54.854Z"
+  "tasksCompleted": 0,
+  "cwd": "/home/mboerner/projects/fedit"
 }

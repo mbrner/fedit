@@ -1,36 +1,36 @@
 {
   "version": 1,
-  "sessionId": "3b357e7a-7450-43bc-aefd-6a551d9306c0",
+  "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
-  "startedAt": "2026-02-10T12:55:19.095Z",
-  "updatedAt": "2026-02-10T12:59:54.840Z",
-  "currentIteration": 3,
+  "startedAt": "2026-02-10T13:41:07.966Z",
+  "updatedAt": "2026-02-10T13:43:57.126Z",
+  "currentIteration": 0,
   "maxIterations": 20,
-  "tasksCompleted": 3,
+  "tasksCompleted": 0,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
     "plugin": "json",
-    "prdPath": "./tasks/prd-mvp.json",
-    "totalTasks": 18,
+    "prdPath": "./tasks/prd-mvp-v2.json",
+    "totalTasks": 17,
     "tasks": [
       {
         "id": "US-001",
         "title": "Single Exact-Match Replacement",
-        "status": "completed",
-        "completedInSession": true
+        "status": "open",
+        "completedInSession": false
       },
       {
         "id": "US-002",
         "title": "Multiple Match Replacement Mode",
-        "status": "completed",
-        "completedInSession": true
+        "status": "open",
+        "completedInSession": false
       },
       {
         "id": "US-003",
         "title": "Atomic File Write",
-        "status": "completed",
-        "completedInSession": true
+        "status": "open",
+        "completedInSession": false
       },
       {
         "id": "US-004",
@@ -70,7 +70,7 @@
       },
       {
         "id": "US-010",
-        "title": "Normalization for Search",
+        "title": "Whitespace-Insensitive Search",
         "status": "open",
         "completedInSession": false
       },
@@ -88,7 +88,7 @@
       },
       {
         "id": "US-013",
-        "title": "Python Bindings - Core API",
+        "title": "Python Bindings via Maturin",
         "status": "open",
         "completedInSession": false
       },
@@ -106,56 +106,19 @@
       },
       {
         "id": "US-016",
-        "title": "README Automation",
+        "title": "Cross-Platform Binary Distribution (POSIX)",
         "status": "open",
         "completedInSession": false
       },
       {
         "id": "US-017",
-        "title": "Cross-Platform Binary Distribution",
-        "status": "open",
-        "completedInSession": false
-      },
-      {
-        "id": "US-018",
         "title": "Linux Package Distribution",
         "status": "open",
         "completedInSession": false
       }
     ]
   },
-  "iterations": [
-    {
-      "iteration": 1,
-      "status": "completed",
-      "taskId": "US-001",
-      "taskTitle": "Single Exact-Match Replacement",
-      "taskCompleted": true,
-      "durationMs": 63589,
-      "startedAt": "2026-02-10T12:55:22.230Z",
-      "endedAt": "2026-02-10T12:56:25.819Z"
-    },
-    {
-      "iteration": 2,
-      "status": "completed",
-      "taskId": "US-002",
-      "taskTitle": "Multiple Match Replacement Mode",
-      "taskCompleted": true,
-      "durationMs": 56009,
-      "startedAt": "2026-02-10T12:56:26.919Z",
-      "endedAt": "2026-02-10T12:57:22.928Z"
-    },
-    {
-      "iteration": 3,
-      "status": "completed",
-      "taskId": "US-003",
-      "taskTitle": "Atomic File Write",
-      "taskCompleted": true,
-      "durationMs": 131330,
-      "startedAt": "2026-02-10T12:57:24.022Z",
-      "endedAt": "2026-02-10T12:59:35.352Z"
-    }
-  ],
+  "iterations": [],
   "skippedTaskIds": [],
   "cwd": "/home/mboerner/projects/fedit",
   "activeTaskIds": [],

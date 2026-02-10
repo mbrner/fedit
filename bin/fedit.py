@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""FEdit: Single exact-match replacement with encoding support."""
+"""FEdit: Single exact-match replacement with encoding support.
+
+Usage:
+  fedit <path> <search> <replace> [--encoding <ENC>] [--multiple]
+
+Behavior:
+- Replaces exactly one occurrence when there is a single exact-match.
+- If there are zero matches, prints an error and exits non-zero.
+- If there are multiple matches, errors unless --multiple is provided, in which
+  case all matches are replaced.
+"""
 
 import argparse
 import os
@@ -11,11 +21,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Single exact-match replacement in a file with encoding support"
     )
-    parser.add_argument("--path", required=True, help="Path to the target file")
-    parser.add_argument(
-        "--search", required=True, help="Search string to replace (exact match)"
-    )
-    parser.add_argument("--replace", required=True, help="Replacement string")
+    # Positional arguments for the core task
+    parser.add_argument("path", help="Path to the target file")
+    parser.add_argument("search", help="Search string to replace (exact match)")
+    parser.add_argument("replace", help="Replacement string")
+
+    # Optional arguments
     parser.add_argument(
         "-e",
         "--encoding",
@@ -25,19 +36,14 @@ def main() -> int:
         help="File encoding to use (default: UTF-8)",
     )
     parser.add_argument(
-        "-M",
-        "--mult",
-        dest="mult",
+        "-m",
+        "--multiple",
+        dest="multiple",
         action="store_true",
         help="Replace all occurrences when multiple matches exist",
     )
-    parser.add_argument(
-        "--replace-all",
-        dest="mult",
-        action="store_true",
-        help="Alias for -M (replace all occurrences)",
-    )
     args = parser.parse_args()
+
     path = args.path
     search = args.search
     replacement = args.replace
@@ -75,9 +81,9 @@ def main() -> int:
         print(f"No matches found for: {search}", file=sys.stderr)
         return 1
 
-    if count > 1 and not getattr(args, "mult", False):
+    if count > 1 and not args.multiple:
         print(
-            f"Multiple matches found ({count}); use -M to replace all",
+            f"Multiple matches found ({count}); use --multiple to replace all",
             file=sys.stderr,
         )
         return 1
