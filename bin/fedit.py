@@ -65,12 +65,20 @@ def main() -> int:
         action="store_true",
         help="Replace all occurrences when multiple matches exist",
     )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="Preview changes without modifying the file",
+    )
     args = parser.parse_args()
 
     path = args.path
     search = args.search
     replacement = args.replace
     enc = args.encoding
+    do_dry_run = bool(args.dry_run)
 
     # Read input as bytes to preserve line ending information
     try:
@@ -137,6 +145,42 @@ def main() -> int:
     else:
         new_text_norm = text_norm.replace(search, rep_for_norm)
 
+    # If dry-run is requested, preview changes and exit without modifying files
+    if do_dry_run:
+        old_lines = text_norm.split("\n")
+        new_lines = new_text_norm.split("\n")
+        max_lines = max(len(old_lines), len(new_lines))
+        print(f"Dry-run preview for: {path}")
+        total_changes = 0
+        for i in range(max_lines):
+            old = old_lines[i] if i < len(old_lines) else ""
+            new = new_lines[i] if i < len(new_lines) else ""
+            if old != new:
+                total_changes += 1
+                print(f"Line {i + 1}:")
+                print(f"- before: {old}")
+                print(f"+ after : {new}")
+        print(f"Total changed lines in dry-run: {total_changes}")
+        print("Note: no file was modified due to dry-run mode.")
+        return 0
+    # Dry-run check: preview changes without touching files
+    if do_dry_run:
+        old_lines = text_norm.split("\n")
+        new_lines = new_text_norm.split("\n")
+        max_lines = max(len(old_lines), len(new_lines))
+        print(f"Dry-run preview for: {path}")
+        total_changes = 0
+        for i in range(max_lines):
+            old = old_lines[i] if i < len(old_lines) else ""
+            new = new_lines[i] if i < len(new_lines) else ""
+            if old != new:
+                total_changes += 1
+                print(f"Line {i + 1}:")
+                print(f"- before: {old}")
+                print(f"+ after : {new}")
+        print(f"Total changed lines in dry-run: {total_changes}")
+        print("Note: no file was modified due to dry-run mode.")
+        return 0
     # Atomic write via temp file
     dirn = os.path.dirname(path) or "."
     tmp_path = None
@@ -157,6 +201,24 @@ def main() -> int:
             f.write(final_text)
             f.flush()
             os.fsync(f.fileno())
+        if do_dry_run:
+            # Dry run: show a preview of changes instead of writing
+            old_lines = text_norm.split("\n")
+            new_lines = new_text_norm.split("\n")
+            max_lines = max(len(old_lines), len(new_lines))
+            print(f"Dry-run preview for: {path}")
+            total_changes = 0
+            for i in range(max_lines):
+                old = old_lines[i] if i < len(old_lines) else ""
+                new = new_lines[i] if i < len(new_lines) else ""
+                if old != new:
+                    total_changes += 1
+                    print(f"Line {i + 1}:")
+                    print(f"- before: {old}")
+                    print(f"+ after : {new}")
+            print(f"Total changed lines in dry-run: {total_changes}")
+            print("Note: no file was modified due to dry-run mode.")
+            return 0
         os.replace(tmp_path, path)
         print(f"Replaced {count} occurrence{'s' if count != 1 else ''} in {path}")
         return 0

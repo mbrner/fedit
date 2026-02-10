@@ -3,10 +3,10 @@
   "sessionId": "6b3e97e5-899e-43cb-a583-477b6500b71c",
   "status": "running",
   "startedAt": "2026-02-10T13:41:07.966Z",
-  "updatedAt": "2026-02-10T13:53:14.637Z",
-  "currentIteration": 4,
+  "updatedAt": "2026-02-10T13:57:58.079Z",
+  "currentIteration": 5,
   "maxIterations": 20,
-  "tasksCompleted": 4,
+  "tasksCompleted": 5,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -41,8 +41,8 @@
       {
         "id": "US-005",
         "title": "Line Ending Preservation",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-006",
@@ -158,6 +158,16 @@
       "durationMs": 113124,
       "startedAt": "2026-02-10T13:47:45.506Z",
       "endedAt": "2026-02-10T13:49:38.630Z"
+    },
+    {
+      "iteration": 5,
+      "status": "completed",
+      "taskId": "US-005",
+      "taskTitle": "Line Ending Preservation",
+      "taskCompleted": true,
+      "durationMs": 214912,
+      "startedAt": "2026-02-10T13:49:39.722Z",
+      "endedAt": "2026-02-10T13:53:14.634Z"
     }
   ],
   "skippedTaskIds": [],
